@@ -23,8 +23,12 @@ import {
   Legend,
   Filler
 } from 'chart.js';
-import { mockGrades, mockClasses } from '../services/mockData';
+import { mockGrades } from '../services/mockData';
 import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { classAPI, dashboardAPI } from '../services/api';
+import { DashboardSkeleton } from '../components/common/Skeleton';
+import type { Class } from '../types';
 
 ChartJS.register(
   CategoryScale,
@@ -39,6 +43,40 @@ ChartJS.register(
 
 export const StudentDashboard = () => {
   const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<any>({
+    totalClasses: 0,
+    upcomingClasses: 0,
+    completedClasses: 0,
+    studyHours: 0,
+  });
+  const [classes, setClasses] = useState<Class[]>([]);
+
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      if (!user) return;
+
+      try {
+        const [dashboardStats, userClasses] = await Promise.all([
+          dashboardAPI.getStats(user.id, user.role),
+          classAPI.getClasses(user.id, user.role),
+        ]);
+
+        setStats(dashboardStats);
+        setClasses(userClasses);
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDashboardData();
+  }, [user]);
+
+  if (loading) {
+    return <DashboardSkeleton />;
+  }
 
   const chartData = {
     labels: mockGrades.map(g => g.subject),
@@ -70,7 +108,7 @@ export const StudentDashboard = () => {
     },
   };
 
-  const upcomingClass = mockClasses.find(c => c.status === 'scheduled');
+  const upcomingClass = classes.find(c => c.status === 'scheduled');
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -90,8 +128,8 @@ export const StudentDashboard = () => {
               <BookOpen className="text-primary-500" size={24} />
             </div>
             <div>
-              <div className="text-2xl font-bold">12</div>
-              <div className="text-sm text-gray-600">이번 달 수업</div>
+              <div className="text-2xl font-bold">{stats.totalClasses}</div>
+              <div className="text-sm text-gray-600">전체 수업</div>
             </div>
           </Card>
 
@@ -100,7 +138,7 @@ export const StudentDashboard = () => {
               <TrendingUp className="text-secondary-500" size={24} />
             </div>
             <div>
-              <div className="text-2xl font-bold">87.5</div>
+              <div className="text-2xl font-bold">{mockGrades.reduce((sum, g) => sum + g.percentile, 0) / mockGrades.length || 0}</div>
               <div className="text-sm text-gray-600">평균 백분위</div>
             </div>
           </Card>
@@ -110,8 +148,8 @@ export const StudentDashboard = () => {
               <Target className="text-accent-500" size={24} />
             </div>
             <div>
-              <div className="text-2xl font-bold">8/10</div>
-              <div className="text-sm text-gray-600">주간 목표 달성</div>
+              <div className="text-2xl font-bold">{stats.completedClasses}</div>
+              <div className="text-sm text-gray-600">완료한 수업</div>
             </div>
           </Card>
 
@@ -120,8 +158,8 @@ export const StudentDashboard = () => {
               <Clock className="text-purple-500" size={24} />
             </div>
             <div>
-              <div className="text-2xl font-bold">24h</div>
-              <div className="text-sm text-gray-600">이번 주 학습시간</div>
+              <div className="text-2xl font-bold">{stats.studyHours}h</div>
+              <div className="text-sm text-gray-600">학습 시간</div>
             </div>
           </Card>
         </div>

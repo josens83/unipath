@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import {
@@ -8,12 +8,38 @@ import {
   Search,
   PlusCircle,
   Users,
+  Edit,
+  Trash2,
+  X,
 } from 'lucide-react';
-import { mockPosts, mockStudyGroups } from '../services/mockData';
+import { postAPI } from '../services/api';
+import { useAuth } from '../contexts/AuthContext';
+import toast from 'react-hot-toast';
+import { ListSkeleton } from '../components/common/Skeleton';
+import type { Post } from '../types';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { postSchema, type PostFormData } from '../utils/validation';
 
 export const Community = () => {
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'posts' | 'groups'>('posts');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [loading, setLoading] = useState(true);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [showPostModal, setShowPostModal] = useState(false);
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<PostFormData>({
+    resolver: zodResolver(postSchema),
+  });
 
   const categories = [
     { id: 'all', name: '전체' },
@@ -23,16 +49,120 @@ export const Community = () => {
     { id: 'qna', name: 'Q&A' },
   ];
 
-  const filteredPosts = selectedCategory === 'all'
-    ? mockPosts
-    : mockPosts.filter(post => post.category === selectedCategory);
+  useEffect(() => {
+    loadPosts();
+  }, [selectedCategory]);
+
+  const loadPosts = async () => {
+    try {
+      const category = selectedCategory === 'all' ? undefined : selectedCategory;
+      const loadedPosts = await postAPI.getPosts(category);
+      setPosts(loadedPosts);
+    } catch (error) {
+      toast.error('게시글을 불러오는데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreatePost = () => {
+    setEditingPost(null);
+    reset({
+      title: '',
+      content: '',
+      category: 'free',
+      tags: [],
+    });
+    setShowPostModal(true);
+  };
+
+  const handleEditPost = (post: Post) => {
+    setEditingPost(post);
+    setValue('title', post.title);
+    setValue('content', post.content);
+    setValue('category', post.category);
+    setValue('tags', post.tags);
+    setShowPostModal(true);
+  };
+
+  const handleDeletePost = async (postId: string) => {
+    if (!window.confirm('정말 삭제하시겠습니까?')) return;
+
+    try {
+      await postAPI.deletePost(postId);
+      toast.success('게시글이 삭제되었습니다.');
+      loadPosts();
+    } catch (error) {
+      toast.error('게시글 삭제에 실패했습니다.');
+    }
+  };
+
+  const onSubmit = async (data: PostFormData) => {
+    if (!user) {
+      toast.error('로그인이 필요합니다.');
+      return;
+    }
+
+    try {
+      if (editingPost) {
+        await postAPI.updatePost(editingPost.id, {
+          title: data.title,
+          content: data.content,
+          category: data.category,
+          tags: data.tags,
+        });
+        toast.success('게시글이 수정되었습니다.');
+      } else {
+        await postAPI.createPost({
+          authorId: user.id,
+          authorName: user.name,
+          title: data.title,
+          content: data.content,
+          category: data.category,
+          tags: data.tags || [],
+        });
+        toast.success('게시글이 작성되었습니다.');
+      }
+
+      setShowPostModal(false);
+      reset();
+      loadPosts();
+    } catch (error) {
+      toast.error(editingPost ? '게시글 수정에 실패했습니다.' : '게시글 작성에 실패했습니다.');
+    }
+  };
+
+  const filteredPosts = posts.filter(post =>
+    post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    post.content.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const getCategoryBadgeColor = (category: string) => {
+    const colors: Record<string, string> = {
+      notice: 'bg-red-100 text-red-700',
+      free: 'bg-blue-100 text-blue-700',
+      success: 'bg-green-100 text-green-700',
+      qna: 'bg-yellow-100 text-yellow-700',
+    };
+    return colors[category] || 'bg-gray-100 text-gray-700';
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">커뮤니티</h1>
-          <p className="text-gray-600">수험생들과 정보를 공유하고 함께 성장하세요</p>
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">커뮤니티</h1>
+            <p className="text-gray-600">수험생들과 정보를 공유하고 함께 성장하세요</p>
+          </div>
+          <Button
+            variant="primary"
+            onClick={handleCreatePost}
+            className="flex items-center gap-2"
+          >
+            <PlusCircle size={20} />
+            글쓰기
+          </Button>
         </div>
 
         {/* Tabs */}
@@ -82,145 +212,194 @@ export const Community = () => {
                     </button>
                   ))}
                 </div>
-
-                <Button variant="primary" fullWidth className="mt-6">
-                  <PlusCircle size={18} className="mr-2" />
-                  글쓰기
-                </Button>
-              </Card>
-
-              <Card className="mt-6">
-                <h3 className="font-bold mb-4">인기 태그</h3>
-                <div className="flex flex-wrap gap-2">
-                  {['입시일정', '합격수기', '서울대', '공부법', '모의고사'].map(tag => (
-                    <span
-                      key={tag}
-                      className="px-3 py-1 bg-gray-100 text-gray-700 text-sm rounded-full hover:bg-gray-200 cursor-pointer"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
               </Card>
             </div>
 
-            {/* Posts */}
+            {/* Main Content */}
             <div className="lg:col-span-3">
-              <Card padding="sm" className="mb-6">
-                <div className="flex items-center gap-2 px-4">
-                  <Search className="text-gray-400" size={20} />
+              {/* Search */}
+              <Card className="mb-4">
+                <div className="relative">
+                  <Search className="absolute left-3 top-3 text-gray-400" size={20} />
                   <input
                     type="text"
-                    placeholder="게시글 검색..."
-                    className="flex-1 py-3 outline-none"
+                    placeholder="검색어를 입력하세요"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                   />
                 </div>
               </Card>
 
-              <div className="space-y-4">
-                {filteredPosts.map(post => (
-                  <Card key={post.id} hover className="cursor-pointer">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className={`px-2 py-1 text-xs rounded-full ${
-                            post.category === 'notice'
-                              ? 'bg-red-100 text-red-700'
-                              : post.category === 'success'
-                              ? 'bg-green-100 text-green-700'
-                              : 'bg-blue-100 text-blue-700'
-                          }`}>
-                            {post.category === 'notice' ? '공지' :
-                             post.category === 'success' ? '합격수기' :
-                             post.category === 'qna' ? 'Q&A' : '자유'}
+              {/* Posts List */}
+              {loading ? (
+                <ListSkeleton items={5} />
+              ) : filteredPosts.length === 0 ? (
+                <Card className="text-center py-12">
+                  <MessageSquare className="mx-auto mb-4 text-gray-400" size={48} />
+                  <p className="text-gray-600">게시글이 없습니다.</p>
+                  <Button
+                    variant="primary"
+                    onClick={handleCreatePost}
+                    className="mt-4"
+                  >
+                    첫 게시글 작성하기
+                  </Button>
+                </Card>
+              ) : (
+                <div className="space-y-4">
+                  {filteredPosts.map(post => (
+                    <Card key={post.id} className="hover:shadow-lg transition-shadow">
+                      <div className="flex justify-between items-start mb-3">
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${getCategoryBadgeColor(post.category)}`}>
+                            {categories.find(c => c.id === post.category)?.name}
                           </span>
-                          {post.tags.map(tag => (
-                            <span key={tag} className="text-xs text-gray-500">
+                          {post.tags.map((tag, idx) => (
+                            <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
                               #{tag}
                             </span>
                           ))}
                         </div>
-                        <h3 className="text-lg font-bold mb-2 hover:text-primary-500">
-                          {post.title}
-                        </h3>
-                        <p className="text-sm text-gray-600 line-clamp-2 mb-3">
-                          {post.content}
-                        </p>
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                        {user?.id === post.authorId && (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleEditPost(post)}
+                              className="text-gray-500 hover:text-primary-500"
+                            >
+                              <Edit size={16} />
+                            </button>
+                            <button
+                              onClick={() => handleDeletePost(post.id)}
+                              className="text-gray-500 hover:text-red-500"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      <h3 className="text-lg font-bold text-gray-900 mb-2">
+                        {post.title}
+                      </h3>
+                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                        {post.content}
+                      </p>
+
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <div className="flex items-center gap-4">
                           <span>{post.authorName}</span>
-                          <span>•</span>
-                          <span>
-                            {new Date(post.createdAt).toLocaleDateString('ko-KR')}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <Eye size={14} />
-                            {post.views}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <ThumbsUp size={14} />
-                            {post.likes}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <MessageSquare size={14} />
-                            {post.comments.length}
-                          </span>
+                          <span>{new Date(post.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          <div className="flex items-center gap-1">
+                            <Eye size={16} />
+                            <span>{post.views}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <ThumbsUp size={16} />
+                            <span>{post.likes}</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <MessageSquare size={16} />
+                            <span>{post.comments.length}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {mockStudyGroups.map(group => (
-              <Card key={group.id} hover>
-                <div className="flex items-start justify-between mb-3">
-                  <h3 className="font-bold text-lg">{group.name}</h3>
-                  <span className="px-2 py-1 bg-primary-100 text-primary-700 text-xs rounded-full">
-                    {group.subject}
-                  </span>
-                </div>
+          <Card className="text-center py-12">
+            <Users className="mx-auto mb-4 text-gray-400" size={48} />
+            <p className="text-gray-600">스터디 그룹 기능은 준비 중입니다.</p>
+          </Card>
+        )}
 
-                <p className="text-sm text-gray-600 mb-4">{group.description}</p>
-
-                <div className="flex items-center justify-between mb-4 pb-4 border-b">
-                  <div className="flex items-center gap-2">
-                    <Users size={16} className="text-gray-500" />
-                    <span className="text-sm text-gray-600">
-                      {group.currentMembers.length}/{group.maxMembers}명
-                    </span>
-                  </div>
-                  <div className="text-xs text-gray-500">
-                    {new Date(group.createdAt).toLocaleDateString('ko-KR')}
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <div className="text-xs text-gray-600 mb-2">스터디 일정</div>
-                  {group.schedule.map((slot, index) => (
-                    <div key={index} className="text-sm text-gray-700">
-                      {slot.day} {slot.startTime}-{slot.endTime}
-                    </div>
-                  ))}
-                </div>
-
-                <Button
-                  variant={group.currentMembers.length >= group.maxMembers ? 'outline' : 'primary'}
-                  fullWidth
-                  disabled={group.currentMembers.length >= group.maxMembers}
+        {/* Post Modal */}
+        {showPostModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold">
+                  {editingPost ? '게시글 수정' : '새 게시글 작성'}
+                </h2>
+                <button
+                  onClick={() => setShowPostModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
                 >
-                  {group.currentMembers.length >= group.maxMembers ? '정원 마감' : '참여하기'}
-                </Button>
-              </Card>
-            ))}
-
-            <Card className="border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-primary-500 hover:bg-primary-50 transition-all">
-              <div className="text-center py-8">
-                <PlusCircle className="text-gray-400 mx-auto mb-2" size={48} />
-                <p className="text-gray-600 font-medium">새 스터디 그룹 만들기</p>
+                  <X size={24} />
+                </button>
               </div>
+
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    카테고리
+                  </label>
+                  <select
+                    {...register('category')}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  >
+                    <option value="free">자유게시판</option>
+                    <option value="success">합격수기</option>
+                    <option value="qna">Q&A</option>
+                  </select>
+                  {errors.category && (
+                    <p className="mt-1 text-sm text-red-600">{errors.category.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    제목
+                  </label>
+                  <input
+                    {...register('title')}
+                    type="text"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    placeholder="제목을 입력하세요"
+                  />
+                  {errors.title && (
+                    <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    내용
+                  </label>
+                  <textarea
+                    {...register('content')}
+                    rows={10}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    placeholder="내용을 입력하세요"
+                  />
+                  {errors.content && (
+                    <p className="mt-1 text-sm text-red-600">{errors.content.message}</p>
+                  )}
+                </div>
+
+                <div className="flex gap-3 justify-end">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowPostModal(false)}
+                  >
+                    취소
+                  </Button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? '처리 중...' : editingPost ? '수정' : '작성'}
+                  </Button>
+                </div>
+              </form>
             </Card>
           </div>
         )}
