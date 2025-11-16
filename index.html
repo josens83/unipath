@@ -1,13 +1,43 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>unipath</title>
+
+    <!-- PWA Support -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#4F46E5" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="UniPath" />
+
+    <!-- SEO -->
+    <meta name="description" content="UniPath - AI 기반 대학입시 올인원 온라인 컨설팅 플랫폼. 1:1 맞춤 과외와 AI 입시 컨설팅으로 꿈의 대학 합격을 이루세요." />
+    <meta name="keywords" content="대학입시, 입시컨설팅, 온라인과외, AI입시분석, 수능, 학습관리" />
+    <meta name="author" content="UniPath" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="UniPath - 대학입시 올인원 온라인 컨설팅" />
+    <meta property="og:description" content="AI 기반 입시 컨설팅과 1:1 맞춤 과외로 꿈의 대학 합격을 현실로 만드세요" />
+    <meta property="og:site_name" content="UniPath" />
+
+    <title>UniPath - 대학입시 올인원 온라인 컨설팅</title>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(registration => console.log('SW registered:', registration))
+            .catch(error => console.log('SW registration failed:', error));
+        });
+      }
+    </script>
   </body>
 </html>
