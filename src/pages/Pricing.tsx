@@ -1,31 +1,59 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { CheckCircle, CreditCard, Lock, ArrowLeft } from 'lucide-react';
 import { pricingPlans } from '../services/mockData';
+import { paymentService } from '../services/payment';
+import { useAuth } from '../contexts/AuthContext';
 import type { PlanType } from '../types';
 
 export const Pricing = () => {
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
   const [selectedPlan, setSelectedPlan] = useState<PlanType | null>(null);
   const [paymentStep, setPaymentStep] = useState<'select' | 'payment' | 'success'>('select');
+  const [processing, setProcessing] = useState(false);
 
   const handleSelectPlan = (planId: PlanType) => {
-    if (planId === 'free') {
-      // Free plan - just navigate to registration
-      navigate('/auth/register');
-    } else {
-      setSelectedPlan(planId);
-      setPaymentStep('payment');
+    if (!isAuthenticated) {
+      toast.error('로그인이 필요합니다.');
+      navigate('/auth/login');
+      return;
     }
+
+    if (planId === 'free') {
+      toast('이미 무료 플랜을 이용 중입니다.', { icon: 'ℹ️' });
+      return;
+    }
+
+    setSelectedPlan(planId);
+    setPaymentStep('payment');
   };
 
-  const handlePayment = () => {
-    // Mock payment processing
-    setTimeout(() => {
-      setPaymentStep('success');
-    }, 1500);
+  const handlePayment = async () => {
+    if (!user || !selectedPlan) return;
+
+    setProcessing(true);
+
+    try {
+      const plan = pricingPlans.find(p => p.id === selectedPlan)!;
+      const amount = Math.floor(plan.price * 1.1); // VAT 포함
+
+      await paymentService.requestPayment({
+        amount,
+        orderId: paymentService.generateOrderId(),
+        orderName: `${plan.name} 플랜 구독`,
+        customerName: user.name,
+        customerEmail: user.email,
+        plan: selectedPlan,
+      });
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast.error('결제 요청 중 오류가 발생했습니다.');
+      setProcessing(false);
+    }
   };
 
   if (paymentStep === 'success') {
@@ -211,13 +239,14 @@ export const Pricing = () => {
                       fullWidth
                       size="lg"
                       onClick={handlePayment}
+                      disabled={processing}
                       className="flex items-center justify-center gap-2"
                     >
                       <Lock size={20} />
-                      ₩{(plan.price * 1.1).toLocaleString()} 결제하기
+                      {processing ? '결제 준비 중...' : `₩${(plan.price * 1.1).toLocaleString()} 결제하기`}
                     </Button>
                     <p className="text-xs text-center text-gray-500 mt-3">
-                      안전한 결제를 위해 SSL 암호화가 적용됩니다
+                      안전한 결제를 위해 토스페이먼츠 PG를 사용합니다
                     </p>
                   </div>
                 </form>

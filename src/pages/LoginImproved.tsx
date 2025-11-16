@@ -24,7 +24,7 @@ export const LoginImproved = () => {
 
   const onSubmit = async (data: LoginFormData) => {
     try {
-      await login(data.email, data.password, role);
+      await login(data.email, data.password);
       toast.success('로그인에 성공했습니다!');
       navigate('/dashboard');
     } catch (error) {

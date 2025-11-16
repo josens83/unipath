@@ -30,7 +30,9 @@ export const Navbar = () => {
         { to: '/consulting', label: 'AI 컨설팅', icon: Users },
         { to: '/community', label: '커뮤니티', icon: MessageSquare },
       ]
-    : [];
+    : [
+        { to: '/pricing', label: '요금제', icon: BookOpen },
+      ];
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -99,9 +101,17 @@ export const Navbar = () => {
         </div>
       </div>
 
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 md:hidden z-40"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-200">
+        <div className="md:hidden border-t border-gray-200 bg-white relative z-50 shadow-lg">
           <div className="px-2 pt-2 pb-3 space-y-1">
             {navLinks.map((link) => (
               <Link

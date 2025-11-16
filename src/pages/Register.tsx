@@ -1,48 +1,37 @@
 import { useState } from 'react';
-import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/common/Button';
-import { Input } from '../components/common/Input';
 import { Card } from '../components/common/Card';
-import type { UserRole } from '../types';
+import { registerSchema } from '../utils/validation';
+import type { RegisterFormData } from '../utils/validation';
 
 export const Register = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [name, setName] = useState('');
-  const [role, setRole] = useState<UserRole>('student');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const { login } = useAuth();
+  const [selectedRole, setSelectedRole] = useState<'student' | 'parent' | 'tutor'>('student');
+  const { register: registerUser } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    setError('');
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
+  });
 
-    if (password !== confirmPassword) {
-      setError('비밀번호가 일치하지 않습니다.');
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('비밀번호는 최소 6자 이상이어야 합니다.');
-      return;
-    }
-
-    setLoading(true);
-
+  const onSubmit = async (data: RegisterFormData) => {
     try {
-      // Mock registration - replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      await login(email, password, role);
+      await registerUser({
+        ...data,
+        role: selectedRole,
+      });
+      toast.success('회원가입에 성공했습니다!');
       navigate('/dashboard');
     } catch (error) {
-      setError('회원가입에 실패했습니다. 다시 시도해주세요.');
-    } finally {
-      setLoading(false);
+      toast.error(error instanceof Error ? error.message : '회원가입에 실패했습니다.');
     }
   };
 
@@ -58,7 +47,7 @@ export const Register = () => {
         </div>
 
         <Card>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             {/* Role Selection */}
             <div>
               <label className="text-sm font-medium text-gray-700 mb-2 block">
@@ -67,9 +56,9 @@ export const Register = () => {
               <div className="grid grid-cols-3 gap-2">
                 <button
                   type="button"
-                  onClick={() => setRole('student')}
+                  onClick={() => setSelectedRole('student')}
                   className={`py-2 px-4 rounded-lg border-2 transition-all ${
-                    role === 'student'
+                    selectedRole === 'student'
                       ? 'border-primary-500 bg-primary-50 text-primary-700 font-medium'
                       : 'border-gray-300 text-gray-700 hover:border-gray-400'
                   }`}
@@ -78,9 +67,9 @@ export const Register = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setRole('parent')}
+                  onClick={() => setSelectedRole('parent')}
                   className={`py-2 px-4 rounded-lg border-2 transition-all ${
-                    role === 'parent'
+                    selectedRole === 'parent'
                       ? 'border-primary-500 bg-primary-50 text-primary-700 font-medium'
                       : 'border-gray-300 text-gray-700 hover:border-gray-400'
                   }`}
@@ -89,9 +78,9 @@ export const Register = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setRole('tutor')}
+                  onClick={() => setSelectedRole('tutor')}
                   className={`py-2 px-4 rounded-lg border-2 transition-all ${
-                    role === 'tutor'
+                    selectedRole === 'tutor'
                       ? 'border-primary-500 bg-primary-50 text-primary-700 font-medium'
                       : 'border-gray-300 text-gray-700 hover:border-gray-400'
                   }`}
@@ -101,54 +90,85 @@ export const Register = () => {
               </div>
             </div>
 
-            <Input
-              type="text"
-              label="이름"
-              placeholder="홍길동"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              fullWidth
-              required
-            />
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                이름
+              </label>
+              <input
+                id="name"
+                type="text"
+                {...register('name')}
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all ${
+                  errors.name ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="홍길동"
+              />
+              {errors.name && (
+                <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+              )}
+            </div>
 
-            <Input
-              type="email"
-              label="이메일"
-              placeholder="example@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              fullWidth
-              required
-            />
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                이메일
+              </label>
+              <input
+                id="email"
+                type="email"
+                {...register('email')}
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all ${
+                  errors.email ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="example@email.com"
+              />
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+              )}
+            </div>
 
-            <Input
-              type="password"
-              label="비밀번호"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              fullWidth
-              required
-            />
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                비밀번호
+              </label>
+              <input
+                id="password"
+                type="password"
+                {...register('password')}
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all ${
+                  errors.password ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="••••••••"
+              />
+              {errors.password && (
+                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+              )}
+            </div>
 
-            <Input
-              type="password"
-              label="비밀번호 확인"
-              placeholder="••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              error={error}
-              fullWidth
-              required
-            />
+            <div>
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                비밀번호 확인
+              </label>
+              <input
+                id="confirmPassword"
+                type="password"
+                {...register('confirmPassword')}
+                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all ${
+                  errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
+                }`}
+                placeholder="••••••••"
+              />
+              {errors.confirmPassword && (
+                <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
+              )}
+            </div>
 
             <Button
               type="submit"
               variant="primary"
               fullWidth
-              disabled={loading}
+              disabled={isSubmitting}
             >
-              {loading ? '가입 중...' : '회원가입'}
+              {isSubmitting ? '가입 중...' : '회원가입'}
             </Button>
 
             <div className="text-center text-sm text-gray-600">

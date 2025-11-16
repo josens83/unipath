@@ -22,6 +22,8 @@ const MyPage = lazy(() => import('./pages/MyPage').then(m => ({ default: m.MyPag
 const Pricing = lazy(() => import('./pages/Pricing').then(m => ({ default: m.Pricing })));
 const Schedule = lazy(() => import('./pages/Schedule').then(m => ({ default: m.Schedule })));
 const VideoClassroom = lazy(() => import('./pages/VideoClassroom').then(m => ({ default: m.VideoClassroom })));
+const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess').then(m => ({ default: m.PaymentSuccess })));
+const PaymentFail = lazy(() => import('./pages/PaymentFail').then(m => ({ default: m.PaymentFail })));
 
 // Loading component
 const PageLoader = () => (
@@ -74,6 +76,8 @@ function AppContent() {
           <Route path="/auth/login" element={<Login />} />
           <Route path="/auth/register" element={<Register />} />
           <Route path="/pricing" element={<Pricing />} />
+          <Route path="/payment/success" element={<PaymentSuccess />} />
+          <Route path="/payment/fail" element={<PaymentFail />} />
 
           {/* Protected Routes */}
           <Route

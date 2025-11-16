@@ -1,12 +1,24 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
-import type { User, UserRole } from '../types';
+import type { User } from '../types';
+import { authAPI } from '../services/api';
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string, role: UserRole) => Promise<void>;
-  logout: () => void;
+  login: (email: string, password: string) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
+  logout: () => Promise<void>;
+  updateProfile: (data: Partial<User>) => Promise<void>;
   isAuthenticated: boolean;
+  loading: boolean;
+}
+
+export interface RegisterData {
+  email: string;
+  password: string;
+  name: string;
+  role: 'student' | 'parent' | 'tutor';
+  phone?: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,33 +37,55 @@ interface AuthProviderProps {
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Load user from localStorage on mount
+  // Load user from API/localStorage on mount
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
-
-  const login = async (email: string, _password: string, role: UserRole) => {
-    // Mock login - replace with actual API call
-    const mockUser: User = {
-      id: Math.random().toString(36).substr(2, 9),
-      email,
-      name: role === 'student' ? '김학생' : role === 'parent' ? '이학부모' : '박튜터',
-      role,
-      avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${email}`,
-      createdAt: new Date().toISOString(),
+    const initAuth = () => {
+      const currentUser = authAPI.getCurrentUser();
+      setUser(currentUser);
+      setLoading(false);
     };
 
-    setUser(mockUser);
-    localStorage.setItem('user', JSON.stringify(mockUser));
+    initAuth();
+  }, []);
+
+  const login = async (email: string, password: string) => {
+    try {
+      const loggedInUser = await authAPI.login(email, password);
+      setUser(loggedInUser);
+    } catch (error) {
+      throw error;
+    }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('user');
+  const register = async (data: RegisterData) => {
+    try {
+      const newUser = await authAPI.register(data);
+      setUser(newUser);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await authAPI.logout();
+      setUser(null);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  const updateProfile = async (data: Partial<User>) => {
+    if (!user) throw new Error('로그인이 필요합니다.');
+
+    try {
+      const updatedUser = await authAPI.updateProfile(user.id, data);
+      setUser(updatedUser);
+    } catch (error) {
+      throw error;
+    }
   };
 
   return (
@@ -59,8 +93,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       value={{
         user,
         login,
+        register,
         logout,
+        updateProfile,
         isAuthenticated: !!user,
+        loading,
       }}
     >
       {children}
