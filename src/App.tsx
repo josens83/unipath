@@ -2,6 +2,8 @@ import { lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Navbar } from './components/common/Navbar';
+import { ToastProvider } from './components/common/ToastProvider';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 
 // Eager-loaded pages (critical for initial load)
 import { Landing } from './pages/Landing';
@@ -12,6 +14,7 @@ import { Register } from './pages/Register';
 const StudentDashboard = lazy(() => import('./pages/StudentDashboard').then(m => ({ default: m.StudentDashboard })));
 const ParentDashboard = lazy(() => import('./pages/ParentDashboard').then(m => ({ default: m.ParentDashboard })));
 const TutorDashboard = lazy(() => import('./pages/TutorDashboard').then(m => ({ default: m.TutorDashboard })));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
 const TutoringSearch = lazy(() => import('./pages/TutoringSearch').then(m => ({ default: m.TutoringSearch })));
 const AIConsulting = lazy(() => import('./pages/AIConsulting').then(m => ({ default: m.AIConsulting })));
 const Community = lazy(() => import('./pages/Community').then(m => ({ default: m.Community })));
@@ -44,6 +47,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 // Dashboard Router based on user role
 const DashboardRouter = () => {
   const { user } = useAuth();
+
+  if (user?.role === 'admin') {
+    return <AdminDashboard />;
+  }
 
   if (user?.role === 'parent') {
     return <ParentDashboard />;
@@ -152,11 +159,14 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <AppContent />
-      </Router>
-    </AuthProvider>
+    <ErrorBoundary>
+      <AuthProvider>
+        <Router>
+          <AppContent />
+          <ToastProvider />
+        </Router>
+      </AuthProvider>
+    </ErrorBoundary>
   );
 }
 
