@@ -353,6 +353,109 @@ toast.error('에러 메시지');
 toast('정보 메시지', { icon: 'ℹ️' });
 ```
 
+## 유틸리티 함수
+
+### 날짜/시간 처리
+
+```typescript
+import { formatDate, formatDateTime, formatRelativeTime, getDDay } from '@/utils/helpers';
+
+formatDate(new Date())              // "2024년 1월 15일"
+formatDateTime(new Date())          // "2024년 1월 15일 오후 3:30"
+formatRelativeTime(new Date())      // "5분 전", "2시간 전"
+getDDay('2024-12-31')              // "D-30"
+```
+
+### 통화/숫자 포맷팅
+
+```typescript
+import { formatCurrency, formatCompactNumber } from '@/utils/helpers';
+
+formatCurrency(1000000)     // "₩1,000,000"
+formatCompactNumber(1500)   // "1.5K"
+```
+
+### 문자열 처리
+
+```typescript
+import { truncate, maskEmail, formatPhoneNumber } from '@/utils/helpers';
+
+truncate("긴 텍스트입니다", 5)              // "긴 텍스..."
+maskEmail("user@example.com")              // "u***@example.com"
+formatPhoneNumber("01012345678")           // "010-1234-5678"
+```
+
+### 성능 최적화
+
+```typescript
+import { debounce, throttle } from '@/utils/helpers';
+
+const debouncedSearch = debounce((query) => {
+  // 검색 로직
+}, 300);
+
+const throttledScroll = throttle(() => {
+  // 스크롤 로직
+}, 100);
+```
+
+### LocalStorage 헬퍼
+
+```typescript
+import { storage } from '@/utils/helpers';
+
+storage.set('key', { data: 'value' });
+const data = storage.get('key', defaultValue);
+storage.remove('key');
+storage.clear();
+```
+
+## 로깅 및 모니터링
+
+### 에러 로깅
+
+```typescript
+import { logger } from '@/utils/logger';
+
+// 로그 레벨
+logger.debug('디버그 메시지', { data });
+logger.info('정보 메시지', { data });
+logger.warn('경고 메시지', { data });
+logger.error('에러 메시지', error, { data });
+
+// 전문 로깅
+logger.logApiRequest('GET', '/api/users');
+logger.logApiResponse('GET', '/api/users', 200, data);
+logger.logApiError('GET', '/api/users', error);
+logger.logUserAction('button_click', { buttonId: 'submit' });
+logger.logPageView('/dashboard');
+logger.logPerformance('API Call', 150, 'ms');
+```
+
+### 성능 측정
+
+```typescript
+import { startTimer, measureExecutionTime } from '@/utils/performance';
+
+// 타이머 사용
+const timer = startTimer('Data Processing');
+// ... 처리 로직
+timer.end();  // 자동으로 로깅
+
+// 함수 래핑
+const optimizedFunction = measureExecutionTime(myFunction, 'MyFunction');
+```
+
+### Web Vitals
+
+애플리케이션 시작 시 자동으로 측정됩니다:
+- **LCP** (Largest Contentful Paint) - 최대 콘텐츠 렌더링 시간
+- **FID** (First Input Delay) - 최초 입력 지연
+- **CLS** (Cumulative Layout Shift) - 누적 레이아웃 이동
+- **TTFB** (Time to First Byte) - 첫 바이트 수신 시간
+
+성능 등급: good / needs-improvement / poor
+
 ## 개발 가이드
 
 ### 새 페이지 추가
@@ -445,12 +548,36 @@ VITE_API_URL=your_backend_api_url  # Mock API 대체 시
 - 맞춤형 학습 계획
 - 약점 과목 분석
 
-### 🔄 Phase 6: 마무리 및 문서화 (진행 중)
-- [x] README 문서 작성
-- [ ] 최종 빌드 및 테스트
-- [ ] 최종 커밋 및 푸시
+### ✅ Phase 6: 종합 문서화 (완료)
+- README 문서 작성 (설치/사용법/배포 가이드)
+- 개발 가이드 및 API 문서
+- 프로젝트 통계 정리
 
-### 📋 향후 계획
+### ✅ Phase 7: 부모/튜터 대시보드 API 연동 (완료)
+- ParentDashboard API 통합 및 로딩 상태
+- TutorDashboard API 통합 및 로딩 상태
+- 4개 역할 모든 대시보드 완전 연동
+- 빈 상태 UI 추가
+
+### ✅ Phase 8: 프로덕션 배포 준비 (완료)
+- .env.example 환경 변수 템플릿
+- vercel.json 배포 설정
+- .gitignore 보안 설정
+- SPA 라우팅 및 캐싱 최적화
+
+### ✅ Phase 9: CI/CD 및 성능 최적화 (완료)
+- GitHub Actions CI/CD 파이프라인
+- SEO 최적화 (robots.txt, meta 태그)
+- Vite 청크 분할 최적화 (vendor 번들 분리)
+- 메인 번들 33% 감소 (359KB → 238KB)
+
+### ✅ Phase 10: 관찰성(Observability) 시스템 (완료)
+- 유틸리티 함수 라이브러리 (70+ 함수)
+- 에러 로깅 시스템 (logger.ts)
+- 성능 모니터링 (Web Vitals: LCP, FID, CLS, TTFB)
+- 전역 에러 핸들러 및 사용자 추적
+
+### 📋 향후 개선 사항
 - 실제 백엔드 API 연동 (Node.js/Express 또는 Supabase)
 - WebRTC 기반 실시간 화상 수업 구현
 - 실시간 채팅 기능 (Socket.io)
@@ -459,15 +586,20 @@ VITE_API_URL=your_backend_api_url  # Mock API 대체 시
 - 모바일 앱 (React Native)
 - E2E 테스트 추가 (Playwright/Cypress)
 - 단위 테스트 (Vitest)
+- 접근성 개선 (WCAG 2.1 AA)
+- 다크모드 지원
 
 ## 프로젝트 통계
 
-- **총 42개 파일** 생성
-- **10,000+ 줄** 코드 작성
+- **총 60+ 파일** 생성
+- **15,000+ 줄** 코드 작성
 - **14개 주요 페이지** 구현
 - **4개 역할** 지원 (학생/학부모/튜터/관리자)
-- **31개 청크** 코드 스플리팅
+- **33개 청크** 코드 스플리팅
 - **8개 API 모듈** 구현
+- **70+ 유틸리티 함수** 제공
+- **Web Vitals 4개** 측정 (LCP, FID, CLS, TTFB)
+- **메인 번들** 76.29 KB (gzipped)
 
 ## 라이선스
 
