@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
-import { Input } from '../components/common/Input';
 import {
   TrendingUp,
   Target,
@@ -9,21 +8,82 @@ import {
   Award,
   AlertCircle,
   CheckCircle,
+  Sparkles,
+  Clock,
 } from 'lucide-react';
-import { mockUniversityPredictions, mockGrades } from '../services/mockData';
+import { useAuth } from '../contexts/AuthContext';
+import { aiAPI } from '../services/api';
+import toast from 'react-hot-toast';
+import type { AIAnalysisResult, GradeData } from '../types';
 
 export const AIConsulting = () => {
-  const [analyzed, setAnalyzed] = useState(false);
+  const { user } = useAuth();
+  const [analyzing, setAnalyzing] = useState(false);
+  const [result, setResult] = useState<AIAnalysisResult | null>(null);
+  const [grades, setGrades] = useState<GradeData[]>([
+    { subject: '국어', score: 85, percentile: 85, date: new Date().toISOString() },
+    { subject: '수학', score: 88, percentile: 88, date: new Date().toISOString() },
+    { subject: '영어', score: 82, percentile: 82, date: new Date().toISOString() },
+    { subject: '탐구1', score: 90, percentile: 90, date: new Date().toISOString() },
+    { subject: '탐구2', score: 87, percentile: 87, date: new Date().toISOString() },
+  ]);
+  const [targetUniversity, setTargetUniversity] = useState('');
+  const [targetDepartment, setTargetDepartment] = useState('');
 
-  const handleAnalyze = () => {
-    setAnalyzed(true);
+  const handleGradeChange = (index: number, value: string) => {
+    const newGrades = [...grades];
+    const score = parseInt(value) || 0;
+    newGrades[index] = {
+      ...newGrades[index],
+      score,
+      percentile: score, // 간단하게 점수를 백분위로 사용
+    };
+    setGrades(newGrades);
+  };
+
+  const handleAnalyze = async () => {
+    if (!user) {
+      toast.error('로그인이 필요합니다.');
+      return;
+    }
+
+    setAnalyzing(true);
+
+    try {
+      // AI 분석 요청
+      const analysisResult = await aiAPI.analyzeStudent(user.id);
+      setResult(analysisResult);
+      toast.success('AI 분석이 완료되었습니다!');
+    } catch (error) {
+      toast.error('분석 중 오류가 발생했습니다.');
+      console.error('Analysis error:', error);
+    } finally {
+      setAnalyzing(false);
+    }
+  };
+
+  const getProbabilityColor = (prob: number) => {
+    if (prob >= 80) return 'text-green-600 bg-green-50';
+    if (prob >= 60) return 'text-blue-600 bg-blue-50';
+    if (prob >= 40) return 'text-yellow-600 bg-yellow-50';
+    return 'text-red-600 bg-red-50';
+  };
+
+  const getProbabilityBadge = (prob: number) => {
+    if (prob >= 80) return '안전';
+    if (prob >= 60) return '적정';
+    if (prob >= 40) return '소신';
+    return '도전';
   };
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">AI 입시 컨설팅</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-2">
+            <Sparkles className="text-primary-500" size={32} />
+            AI 입시 컨설팅
+          </h1>
           <p className="text-gray-600">성적 기반 맞춤형 대학 추천 및 학습 계획</p>
         </div>
 
@@ -33,24 +93,32 @@ export const AIConsulting = () => {
             <Card className="sticky top-24">
               <h2 className="text-xl font-bold mb-4">성적 입력</h2>
               <div className="space-y-4">
-                {mockGrades.map(grade => (
-                  <Input
-                    key={grade.subject}
-                    label={grade.subject}
-                    type="number"
-                    defaultValue={grade.score}
-                    fullWidth
-                  />
+                {grades.map((grade, index) => (
+                  <div key={grade.subject}>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      {grade.subject}
+                    </label>
+                    <input
+                      type="number"
+                      value={grade.score}
+                      onChange={(e) => handleGradeChange(index, e.target.value)}
+                      min="0"
+                      max="100"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    />
+                  </div>
                 ))}
 
                 <div className="pt-4 border-t">
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
                     희망 대학 (선택)
                   </label>
-                  <Input
+                  <input
                     type="text"
+                    value={targetUniversity}
+                    onChange={(e) => setTargetUniversity(e.target.value)}
                     placeholder="예: 서울대학교"
-                    fullWidth
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                   />
                 </div>
 
@@ -58,10 +126,12 @@ export const AIConsulting = () => {
                   <label className="text-sm font-medium text-gray-700 mb-2 block">
                     희망 학과
                   </label>
-                  <Input
+                  <input
                     type="text"
+                    value={targetDepartment}
+                    onChange={(e) => setTargetDepartment(e.target.value)}
                     placeholder="예: 경영학과"
-                    fullWidth
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                   />
                 </div>
 
@@ -69,16 +139,34 @@ export const AIConsulting = () => {
                   variant="primary"
                   fullWidth
                   onClick={handleAnalyze}
+                  disabled={analyzing}
+                  className="flex items-center justify-center gap-2"
                 >
-                  AI 분석 시작하기
+                  {analyzing ? (
+                    <>
+                      <Clock className="animate-spin" size={20} />
+                      분석 중...
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={20} />
+                      AI 분석 시작하기
+                    </>
+                  )}
                 </Button>
+
+                {result && (
+                  <div className="text-xs text-gray-500 text-center pt-2">
+                    마지막 분석: {new Date(result.generatedAt).toLocaleString()}
+                  </div>
+                )}
               </div>
             </Card>
           </div>
 
           {/* Results Section */}
           <div className="lg:col-span-2 space-y-6">
-            {!analyzed ? (
+            {!result ? (
               <Card className="text-center py-12">
                 <TrendingUp className="text-primary-500 mx-auto mb-4" size={64} />
                 <h3 className="text-xl font-bold mb-2">AI 분석을 시작해보세요</h3>
@@ -96,45 +184,48 @@ export const AIConsulting = () => {
                     추천 대학
                   </h2>
                   <div className="space-y-4">
-                    {mockUniversityPredictions.map((pred, index) => (
+                    {result.predictions.map((pred, index) => (
                       <div
                         key={index}
-                        className="p-4 border-2 rounded-lg hover:border-primary-300 transition-all"
+                        className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
                       >
-                        <div className="flex items-start justify-between mb-3">
+                        <div className="flex justify-between items-start mb-3">
                           <div>
-                            <h3 className="font-bold text-lg">{pred.universityName}</h3>
+                            <h3 className="text-lg font-bold">{pred.universityName}</h3>
                             <p className="text-gray-600">{pred.department}</p>
                           </div>
-                          <div className="text-right">
-                            <div className="text-2xl font-bold text-primary-500">
+                          <div className={`px-3 py-1 rounded-full text-sm font-medium ${getProbabilityColor(pred.admissionProbability)}`}>
+                            {getProbabilityBadge(pred.admissionProbability)}
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <div className="text-gray-600">합격 확률</div>
+                            <div className="text-lg font-bold text-primary-600">
                               {pred.admissionProbability}%
                             </div>
-                            <div className="text-xs text-gray-600">합격 가능성</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-600">요구 점수</div>
+                            <div className="text-lg font-bold">{pred.requiredScore}점</div>
+                          </div>
+                          <div>
+                            <div className="text-gray-600">경쟁률</div>
+                            <div className="text-lg font-bold">{pred.competitionRate}:1</div>
                           </div>
                         </div>
 
-                        <div className="w-full bg-gray-200 rounded-full h-2 mb-3">
-                          <div
-                            className={`h-2 rounded-full ${
-                              pred.admissionProbability >= 80
-                                ? 'bg-green-500'
-                                : pred.admissionProbability >= 60
-                                ? 'bg-yellow-500'
-                                : 'bg-red-500'
-                            }`}
-                            style={{ width: `${pred.admissionProbability}%` }}
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <span className="text-gray-600">요구 성적:</span>
-                            <span className="font-medium ml-2">{pred.requiredScore}점</span>
-                          </div>
-                          <div>
-                            <span className="text-gray-600">경쟁률:</span>
-                            <span className="font-medium ml-2">{pred.competitionRate}:1</span>
+                        {/* Progress Bar */}
+                        <div className="mt-3">
+                          <div className="w-full bg-gray-200 rounded-full h-2">
+                            <div
+                              className={`h-2 rounded-full ${pred.admissionProbability >= 80 ? 'bg-green-500' :
+                                pred.admissionProbability >= 60 ? 'bg-blue-500' :
+                                  pred.admissionProbability >= 40 ? 'bg-yellow-500' : 'bg-red-500'
+                                }`}
+                              style={{ width: `${pred.admissionProbability}%` }}
+                            />
                           </div>
                         </div>
                       </div>
@@ -143,21 +234,36 @@ export const AIConsulting = () => {
                 </Card>
 
                 {/* Weak Subjects */}
+                {result.weakSubjects.length > 0 && (
+                  <Card>
+                    <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                      <AlertCircle className="text-orange-500" />
+                      보완이 필요한 과목
+                    </h2>
+                    <div className="flex flex-wrap gap-2">
+                      {result.weakSubjects.map((subject, index) => (
+                        <span
+                          key={index}
+                          className="px-4 py-2 bg-orange-50 text-orange-700 rounded-full text-sm font-medium"
+                        >
+                          {subject}
+                        </span>
+                      ))}
+                    </div>
+                  </Card>
+                )}
+
+                {/* Recommendations */}
                 <Card>
                   <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                    <AlertCircle className="text-accent-500" />
-                    집중 보완 과목
+                    <Award className="text-blue-500" />
+                    AI 추천사항
                   </h2>
                   <div className="space-y-3">
-                    {['수학', '영어'].map((subject, index) => (
-                      <div key={index} className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-medium">{subject}</span>
-                          <span className="text-sm text-red-600">보완 필요</span>
-                        </div>
-                        <p className="text-sm text-gray-700">
-                          목표 대학 진학을 위해 최소 {index === 0 ? '5' : '8'}점 향상이 필요합니다.
-                        </p>
+                    {result.recommendations.map((rec, index) => (
+                      <div key={index} className="flex items-start gap-3">
+                        <CheckCircle className="text-blue-500 flex-shrink-0 mt-0.5" size={20} />
+                        <p className="text-gray-700">{rec}</p>
                       </div>
                     ))}
                   </div>
@@ -166,81 +272,47 @@ export const AIConsulting = () => {
                 {/* Study Plan */}
                 <Card>
                   <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                    <BookOpen className="text-secondary-500" />
+                    <BookOpen className="text-green-500" />
                     맞춤 학습 계획
                   </h2>
-                  <div className="space-y-4">
-                    {[
-                      {
-                        subject: '수학',
-                        current: 78,
-                        target: 85,
-                        tasks: ['미적분 기본 개념 복습', '심화 문제 풀이', '모의고사 3회 이상'],
-                        deadline: '2주',
-                      },
-                      {
-                        subject: '영어',
-                        current: 92,
-                        target: 95,
-                        tasks: ['고난도 독해 연습', '어휘 200개 추가 암기'],
-                        deadline: '1주',
-                      },
-                    ].map((plan, index) => (
-                      <div key={index} className="p-4 bg-blue-50 rounded-lg">
-                        <div className="flex items-center justify-between mb-3">
-                          <h3 className="font-bold">{plan.subject}</h3>
-                          <div className="text-sm">
-                            <span className="text-gray-600">{plan.current}점</span>
-                            <span className="mx-2">→</span>
-                            <span className="font-bold text-primary-500">{plan.target}점</span>
+                  <div className="space-y-6">
+                    {result.studyPlan.map((plan, index) => (
+                      <div key={index} className="border-l-4 border-primary-500 pl-4">
+                        <div className="flex justify-between items-start mb-2">
+                          <h3 className="font-bold text-lg">{plan.subject}</h3>
+                          <span className="text-sm text-gray-600">
+                            D-{Math.ceil((new Date(plan.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24))}
+                          </span>
+                        </div>
+
+                        <div className="flex gap-4 text-sm mb-3">
+                          <div>
+                            <span className="text-gray-600">현재: </span>
+                            <span className="font-medium">{plan.currentScore}점</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">목표: </span>
+                            <span className="font-medium text-primary-600">{plan.targetScore}점</span>
+                          </div>
+                          <div>
+                            <span className="text-gray-600">필요 상승: </span>
+                            <span className="font-medium text-green-600">+{plan.targetScore - plan.currentScore}점</span>
                           </div>
                         </div>
 
-                        <ul className="space-y-2 mb-3">
+                        <div className="space-y-2">
                           {plan.tasks.map((task, taskIndex) => (
-                            <li key={taskIndex} className="flex items-start gap-2 text-sm">
-                              <CheckCircle className="text-secondary-500 flex-shrink-0 mt-0.5" size={16} />
-                              <span>{task}</span>
-                            </li>
+                            <div key={taskIndex} className="flex items-center gap-2 text-sm">
+                              <input
+                                type="checkbox"
+                                className="w-4 h-4 text-primary-500 rounded"
+                              />
+                              <span className="text-gray-700">{task}</span>
+                            </div>
                           ))}
-                        </ul>
-
-                        <div className="text-xs text-gray-600">
-                          ⏰ 목표 기간: {plan.deadline}
                         </div>
                       </div>
                     ))}
-                  </div>
-                </Card>
-
-                {/* Success Tips */}
-                <Card>
-                  <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                    <Award className="text-accent-500" />
-                    AI 추천 사항
-                  </h2>
-                  <div className="space-y-3">
-                    <div className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
-                      <CheckCircle className="text-green-500 flex-shrink-0 mt-1" size={20} />
-                      <div className="text-sm">
-                        <strong>영어 강점 유지:</strong> 현재 영어 성적이 우수합니다.
-                        이 강점을 계속 유지하면서 다른 과목에 집중하세요.
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
-                      <CheckCircle className="text-blue-500 flex-shrink-0 mt-1" size={20} />
-                      <div className="text-sm">
-                        <strong>수학 집중 학습:</strong> 주 3회 이상 수학 튜터링을 추천합니다.
-                        미적분 개념 정리가 우선입니다.
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3 p-3 bg-purple-50 rounded-lg">
-                      <CheckCircle className="text-purple-500 flex-shrink-0 mt-1" size={20} />
-                      <div className="text-sm">
-                        <strong>모의고사 활용:</strong> 매주 1회 이상 모의고사를 풀고
-                        오답 노트를 작성하세요.
-                      </div>
-                    </div>
                   </div>
                 </Card>
               </>
