@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@supabase/supabase-js": "^2.81.1",
     "@tosspayments/payment-sdk": "^1.9.2",
     "chart.js": "^4.5.1",
     "clsx": "^2.1.1",
