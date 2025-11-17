@@ -221,7 +221,11 @@ export const Landing = () => {
             무료 체험으로 UniPath의 모든 기능을 경험해보세요
           </p>
           <Link to="/auth/register">
-            <Button size="lg" className="bg-white text-primary-600 hover:bg-gray-100">
+            <Button
+              size="lg"
+              variant="ghost"
+              className="bg-accent-400 text-gray-900 hover:bg-accent-500 shadow-xl font-bold"
+            >
               무료로 시작하기
             </Button>
           </Link>
