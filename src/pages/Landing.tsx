@@ -52,12 +52,20 @@ export const Landing = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link to="/auth/register">
-              <Button size="lg" className="bg-white text-primary-600 hover:bg-gray-100">
+              <Button
+                size="lg"
+                variant="ghost"
+                className="bg-white text-primary-600 hover:bg-gray-100 shadow-lg"
+              >
                 무료로 시작하기
               </Button>
             </Link>
             <Link to="/auth/login">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10">
+              <Button
+                size="lg"
+                variant="ghost"
+                className="border-2 border-white text-white hover:bg-white/10"
+              >
                 로그인
               </Button>
             </Link>
