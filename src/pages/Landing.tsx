@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { Button } from '../components/common/Button';
 import { Card } from '../components/common/Card';
 import {
@@ -51,7 +50,7 @@ export const Landing = () => {
             꿈의 대학 합격을 현실로 만드세요
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Link to="/auth/register">
+            <a href="/auth/register">
               <Button
                 size="lg"
                 variant="ghost"
@@ -59,8 +58,8 @@ export const Landing = () => {
               >
                 무료로 시작하기
               </Button>
-            </Link>
-            <Link to="/auth/login">
+            </a>
+            <a href="/auth/login">
               <Button
                 size="lg"
                 variant="ghost"
@@ -68,7 +67,7 @@ export const Landing = () => {
               >
                 로그인
               </Button>
-            </Link>
+            </a>
           </div>
 
           <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-8">
@@ -197,14 +196,14 @@ export const Landing = () => {
                     </li>
                   ))}
                 </ul>
-                <Link to="/auth/register">
+                <a href="/auth/register">
                   <Button
                     variant={plan.popular ? 'primary' : 'outline'}
                     fullWidth
                   >
                     {plan.price === 0 ? '무료 체험하기' : '시작하기'}
                   </Button>
-                </Link>
+                </a>
               </Card>
             ))}
           </div>
@@ -220,7 +219,7 @@ export const Landing = () => {
           <p className="text-xl mb-8">
             무료 체험으로 UniPath의 모든 기능을 경험해보세요
           </p>
-          <Link to="/auth/register">
+          <a href="/auth/register">
             <Button
               size="lg"
               variant="ghost"
@@ -228,7 +227,7 @@ export const Landing = () => {
             >
               무료로 시작하기
             </Button>
-          </Link>
+          </a>
         </div>
       </section>
     </div>
