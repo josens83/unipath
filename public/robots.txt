@@ -1,0 +1,10 @@
+# UniPath - 대학입시 올인원 온라인 컨설팅
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /mypage/
+
+# Sitemap
+Sitemap: https://unipath.kr/sitemap.xml
