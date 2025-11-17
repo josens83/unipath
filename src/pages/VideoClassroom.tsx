@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import {
@@ -14,8 +15,23 @@ import {
   Settings,
   Maximize,
 } from 'lucide-react';
+import { getWebRTCService } from '../services/webrtc';
+import { useAuth } from '../contexts/AuthContext';
+import toast from 'react-hot-toast';
 
 export const VideoClassroom = () => {
+  const { sessionId } = useParams<{ sessionId: string }>();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // WebRTC 상태
+  const localVideoRef = useRef<HTMLVideoElement>(null);
+  const remoteVideoRef = useRef<HTMLVideoElement>(null);
+  const [connectionStatus, setConnectionStatus] = useState<
+    'idle' | 'connecting' | 'connected' | 'disconnected'
+  >('idle');
+
+  // UI 상태
   const [isMicOn, setIsMicOn] = useState(true);
   const [isCameraOn, setIsCameraOn] = useState(true);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
@@ -26,6 +42,110 @@ export const VideoClassroom = () => {
   ]);
   const [newMessage, setNewMessage] = useState('');
 
+  // WebRTC 초기화
+  useEffect(() => {
+    if (!sessionId || !user) {
+      toast.error('세션 정보가 없습니다.');
+      navigate('/dashboard');
+      return;
+    }
+
+    const initializeWebRTC = async () => {
+      try {
+        const webrtc = getWebRTCService();
+
+        // WebRTC 연결 시작
+        const localStream = await webrtc.initializeCall(
+          {
+            sessionId,
+            userId: user.id,
+            isInitiator: user.role === 'tutor', // 튜터가 방 생성자
+          },
+          (remoteStream) => {
+            // 상대방의 스트림을 받았을 때
+            if (remoteVideoRef.current) {
+              remoteVideoRef.current.srcObject = remoteStream;
+            }
+          },
+          (status) => {
+            // 연결 상태 변경
+            setConnectionStatus(status);
+            if (status === 'connected') {
+              toast.success('화상 통화가 연결되었습니다!');
+            } else if (status === 'disconnected') {
+              toast.error('연결이 끊어졌습니다.');
+            }
+          }
+        );
+
+        // 로컬 스트림 표시
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = localStream;
+        }
+
+        setConnectionStatus('connecting');
+      } catch (error: any) {
+        console.error('WebRTC 초기화 실패:', error);
+        toast.error(error.message || 'WebRTC 초기화에 실패했습니다.');
+      }
+    };
+
+    initializeWebRTC();
+
+    // Cleanup: 컴포넌트 언마운트 시 연결 종료
+    return () => {
+      const webrtc = getWebRTCService();
+      webrtc.disconnect();
+    };
+  }, [sessionId, user, navigate]);
+
+  // 마이크 토글
+  const handleToggleMic = () => {
+    const webrtc = getWebRTCService();
+    const newState = !isMicOn;
+    webrtc.toggleAudio(newState);
+    setIsMicOn(newState);
+    toast.success(newState ? '마이크 켜짐' : '마이크 꺼짐');
+  };
+
+  // 카메라 토글
+  const handleToggleCamera = () => {
+    const webrtc = getWebRTCService();
+    const newState = !isCameraOn;
+    webrtc.toggleVideo(newState);
+    setIsCameraOn(newState);
+    toast.success(newState ? '카메라 켜짐' : '카메라 꺼짐');
+  };
+
+  // 화면 공유
+  const handleScreenShare = async () => {
+    const webrtc = getWebRTCService();
+    try {
+      if (!isScreenSharing) {
+        await webrtc.startScreenShare();
+        setIsScreenSharing(true);
+        toast.success('화면 공유 시작');
+      } else {
+        await webrtc.stopScreenShare();
+        setIsScreenSharing(false);
+        toast.success('화면 공유 종료');
+      }
+    } catch (error: any) {
+      toast.error(error.message || '화면 공유 실패');
+    }
+  };
+
+  // 수업 종료
+  const handleEndClass = async () => {
+    if (confirm('수업을 종료하시겠습니까?')) {
+      const webrtc = getWebRTCService();
+      await webrtc.disconnect();
+      toast.success('수업이 종료되었습니다.');
+      navigate('/dashboard');
+    }
+  };
+
+  // 채팅 메시지 전송
   const handleSendMessage = () => {
     if (newMessage.trim()) {
       setMessages([
@@ -51,17 +171,30 @@ export const VideoClassroom = () => {
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg" />
           <div>
-            <h1 className="font-bold">수학 수업 - 미적분</h1>
-            <p className="text-sm text-gray-400">튜터: 김수학</p>
+            <h1 className="font-bold">실시간 화상 수업</h1>
+            <p className="text-sm text-gray-400">Session: {sessionId}</p>
           </div>
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 px-3 py-2 bg-red-500 rounded-lg">
-            <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-            <span className="text-sm font-medium">LIVE</span>
-          </div>
-          <span className="text-sm text-gray-400">18:23 / 60:00</span>
+          {connectionStatus === 'connected' && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-green-500 rounded-lg">
+              <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+              <span className="text-sm font-medium">연결됨</span>
+            </div>
+          )}
+          {connectionStatus === 'connecting' && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-yellow-500 rounded-lg">
+              <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+              <span className="text-sm font-medium">연결 중...</span>
+            </div>
+          )}
+          {connectionStatus === 'disconnected' && (
+            <div className="flex items-center gap-2 px-3 py-2 bg-red-500 rounded-lg">
+              <div className="w-2 h-2 bg-white rounded-full" />
+              <span className="text-sm font-medium">연결 끊김</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -70,42 +203,52 @@ export const VideoClassroom = () => {
         {/* Video Area */}
         <div className={`flex-1 p-4 ${showChat ? '' : 'w-full'}`}>
           <div className="grid grid-cols-1 gap-4 h-full">
-            {/* Main Video (Tutor) */}
+            {/* Remote Video (Tutor/Student) */}
             <Card className="bg-gray-800 border-gray-700 relative overflow-hidden flex-1">
-              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary-900 to-secondary-900">
-                <div className="text-center text-white">
-                  <div className="w-24 h-24 bg-white/20 rounded-full mx-auto mb-4 flex items-center justify-center">
-                    <Users size={48} />
+              <video
+                ref={remoteVideoRef}
+                autoPlay
+                playsInline
+                className="w-full h-full object-cover"
+              />
+              {connectionStatus !== 'connected' && (
+                <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary-900 to-secondary-900">
+                  <div className="text-center text-white">
+                    <div className="w-24 h-24 bg-white/20 rounded-full mx-auto mb-4 flex items-center justify-center">
+                      <Users size={48} />
+                    </div>
+                    <p className="text-xl font-bold">
+                      {connectionStatus === 'connecting'
+                        ? '연결 중...'
+                        : '상대방을 기다리고 있습니다'}
+                    </p>
                   </div>
-                  <p className="text-xl font-bold">김수학 튜터</p>
-                  <p className="text-sm text-gray-300 mt-2">카메라 연결 중...</p>
                 </div>
-              </div>
+              )}
               <div className="absolute top-4 left-4 px-3 py-1 bg-black/50 rounded-lg text-white text-sm">
-                튜터
+                상대방
               </div>
               <button className="absolute top-4 right-4 p-2 bg-black/50 hover:bg-black/70 rounded-lg text-white">
                 <Maximize size={20} />
               </button>
             </Card>
 
-            {/* Self Video (Student) */}
+            {/* Local Video (Self) */}
             <Card className="bg-gray-800 border-gray-700 relative overflow-hidden h-48">
-              <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-gray-700 to-gray-800">
-                <div className="text-center text-white">
-                  <div className="w-16 h-16 bg-white/20 rounded-full mx-auto mb-2 flex items-center justify-center">
-                    <Users size={32} />
-                  </div>
-                  <p className="font-medium">나</p>
-                </div>
-              </div>
+              <video
+                ref={localVideoRef}
+                autoPlay
+                playsInline
+                muted
+                className="w-full h-full object-cover"
+              />
               {!isCameraOn && (
-                <div className="absolute inset-0 bg-black/80 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black flex items-center justify-center">
                   <VideoOff className="text-white" size={32} />
                 </div>
               )}
               <div className="absolute top-2 left-2 px-2 py-1 bg-black/50 rounded text-white text-xs">
-                내 화면
+                나
               </div>
             </Card>
           </div>
@@ -179,7 +322,7 @@ export const VideoClassroom = () => {
           {/* Left Controls */}
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setIsMicOn(!isMicOn)}
+              onClick={handleToggleMic}
               className={`p-4 rounded-full transition-colors ${
                 isMicOn
                   ? 'bg-gray-700 hover:bg-gray-600 text-white'
@@ -191,7 +334,7 @@ export const VideoClassroom = () => {
             </button>
 
             <button
-              onClick={() => setIsCameraOn(!isCameraOn)}
+              onClick={handleToggleCamera}
               className={`p-4 rounded-full transition-colors ${
                 isCameraOn
                   ? 'bg-gray-700 hover:bg-gray-600 text-white'
@@ -203,7 +346,7 @@ export const VideoClassroom = () => {
             </button>
 
             <button
-              onClick={() => setIsScreenSharing(!isScreenSharing)}
+              onClick={handleScreenShare}
               className={`p-4 rounded-full transition-colors ${
                 isScreenSharing
                   ? 'bg-primary-500 hover:bg-primary-600'
@@ -251,6 +394,7 @@ export const VideoClassroom = () => {
           <div>
             <Button
               variant="primary"
+              onClick={handleEndClass}
               className="bg-red-500 hover:bg-red-600 px-6 py-4 flex items-center gap-2"
             >
               <Phone size={20} />

@@ -22,6 +22,7 @@
     "react-hook-form": "^7.66.0",
     "react-hot-toast": "^2.6.0",
     "react-router-dom": "^7.9.6",
+    "simple-peer": "^9.11.1",
     "zod": "^4.1.12"
   },
   "devDependencies": {
@@ -29,6 +30,7 @@
     "@types/node": "^24.10.0",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
+    "@types/simple-peer": "^9.11.9",
     "@vitejs/plugin-react": "^5.1.0",
     "autoprefixer": "^10.4.22",
     "eslint": "^9.39.1",
