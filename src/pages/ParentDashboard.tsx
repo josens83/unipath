@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import {
@@ -11,10 +12,60 @@ import {
   MessageSquare,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { mockGrades } from '../services/mockData';
+import { useAuth } from '../contexts/AuthContext';
+import { dashboardAPI, classAPI } from '../services/api';
+import { DashboardSkeleton } from '../components/common/Skeleton';
+import type { Class, GradeData } from '../types';
 
 export const ParentDashboard = () => {
-  const childName = '김학생';
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<any>({
+    studyHours: 0,
+    averageScore: 0,
+    averagePercentile: 0,
+    completedClasses: 0,
+    monthlyPayment: 0,
+    subscriptionPlan: 'Free',
+  });
+  const [classes, setClasses] = useState<Class[]>([]);
+  const [grades, setGrades] = useState<GradeData[]>([]);
+  const childName = user?.name || '학생';
+
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      if (!user) return;
+
+      try {
+        const [dashboardStats, userClasses] = await Promise.all([
+          dashboardAPI.getStats(user.id, user.role),
+          classAPI.getClasses(user.id, user.role),
+        ]);
+
+        setStats(dashboardStats);
+        setClasses(userClasses);
+
+        // Mock grades data for parent view
+        setGrades([
+          { subject: '국어', score: 85, percentile: 85, date: new Date().toISOString() },
+          { subject: '수학', score: 88, percentile: 88, date: new Date().toISOString() },
+          { subject: '영어', score: 82, percentile: 82, date: new Date().toISOString() },
+          { subject: '탐구1', score: 90, percentile: 90, date: new Date().toISOString() },
+          { subject: '탐구2', score: 87, percentile: 87, date: new Date().toISOString() },
+        ]);
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDashboardData();
+  }, [user]);
+
+  if (loading) {
+    return <DashboardSkeleton />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4">
@@ -50,7 +101,7 @@ export const ParentDashboard = () => {
               <BookOpen className="text-primary-500" size={20} />
               <span className="text-sm text-gray-600">이번 주 학습</span>
             </div>
-            <div className="text-2xl font-bold">24시간</div>
+            <div className="text-2xl font-bold">{stats.studyHours || 0}시간</div>
             <div className="text-xs text-secondary-500 mt-1">↑ 지난주 대비 +3h</div>
           </Card>
 
@@ -59,8 +110,8 @@ export const ParentDashboard = () => {
               <TrendingUp className="text-secondary-500" size={20} />
               <span className="text-sm text-gray-600">평균 성적</span>
             </div>
-            <div className="text-2xl font-bold">87.5점</div>
-            <div className="text-xs text-secondary-500 mt-1">백분위 88%</div>
+            <div className="text-2xl font-bold">{stats.averageScore || 0}점</div>
+            <div className="text-xs text-secondary-500 mt-1">백분위 {stats.averagePercentile || 0}%</div>
           </Card>
 
           <Card>
@@ -68,7 +119,7 @@ export const ParentDashboard = () => {
               <Calendar className="text-accent-500" size={20} />
               <span className="text-sm text-gray-600">완료한 수업</span>
             </div>
-            <div className="text-2xl font-bold">42회</div>
+            <div className="text-2xl font-bold">{stats.completedClasses || 0}회</div>
             <div className="text-xs text-gray-600 mt-1">이번 달</div>
           </Card>
 
@@ -77,8 +128,8 @@ export const ParentDashboard = () => {
               <DollarSign className="text-purple-500" size={20} />
               <span className="text-sm text-gray-600">이번 달 결제</span>
             </div>
-            <div className="text-2xl font-bold">₩149,000</div>
-            <div className="text-xs text-gray-600 mt-1">프리미엄 플랜</div>
+            <div className="text-2xl font-bold">₩{(stats.monthlyPayment || 0).toLocaleString()}</div>
+            <div className="text-xs text-gray-600 mt-1">{stats.subscriptionPlan || 'Free'} 플랜</div>
           </Card>
         </div>
 
@@ -89,7 +140,7 @@ export const ParentDashboard = () => {
             <Card>
               <h2 className="text-xl font-bold mb-4">과목별 성적</h2>
               <div className="space-y-4">
-                {mockGrades.map((grade) => (
+                {grades.map((grade) => (
                   <div key={grade.subject}>
                     <div className="flex justify-between items-center mb-2">
                       <span className="font-medium">{grade.subject}</span>
@@ -115,29 +166,37 @@ export const ParentDashboard = () => {
 
             {/* Weekly Schedule */}
             <Card>
-              <h2 className="text-xl font-bold mb-4">이번 주 수업 일정</h2>
+              <h2 className="text-xl font-bold mb-4">다가오는 수업</h2>
               <div className="space-y-3">
-                {[
-                  { day: '월요일', subject: '수학', time: '18:00', tutor: '김수학' },
-                  { day: '수요일', subject: '영어', time: '17:00', tutor: '이영어' },
-                  { day: '금요일', subject: '수학', time: '18:00', tutor: '김수학' },
-                  { day: '토요일', subject: '국어', time: '14:00', tutor: '박국어' },
-                ].map((schedule, index) => (
-                  <div key={index} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <div className="text-center">
-                        <div className="text-xs text-gray-600">{schedule.day}</div>
-                        <div className="font-bold">{schedule.time}</div>
-                      </div>
-                      <div className="h-10 w-px bg-gray-300" />
-                      <div>
-                        <div className="font-medium">{schedule.subject}</div>
-                        <div className="text-sm text-gray-600">{schedule.tutor} 선생님</div>
-                      </div>
-                    </div>
-                    <Clock className="text-gray-400" size={20} />
+                {classes.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    예정된 수업이 없습니다.
                   </div>
-                ))}
+                ) : (
+                  classes.slice(0, 5).map((classItem) => (
+                    <div key={classItem.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-4">
+                        <div className="text-center">
+                          <div className="text-xs text-gray-600">
+                            {new Date(classItem.scheduledAt).toLocaleDateString('ko-KR', { weekday: 'short' })}
+                          </div>
+                          <div className="font-bold">
+                            {new Date(classItem.scheduledAt).toLocaleTimeString('ko-KR', {
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </div>
+                        </div>
+                        <div className="h-10 w-px bg-gray-300" />
+                        <div>
+                          <div className="font-medium">{classItem.subject}</div>
+                          <div className="text-sm text-gray-600">{classItem.duration}분</div>
+                        </div>
+                      </div>
+                      <Clock className="text-gray-400" size={20} />
+                    </div>
+                  ))
+                )}
               </div>
             </Card>
 

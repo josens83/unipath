@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import {
@@ -12,16 +13,48 @@ import {
   Star,
 } from 'lucide-react';
 import { Line } from 'react-chartjs-2';
-import { mockClasses } from '../services/mockData';
+import { useAuth } from '../contexts/AuthContext';
+import { dashboardAPI, classAPI } from '../services/api';
+import { DashboardSkeleton } from '../components/common/Skeleton';
+import type { Class } from '../types';
 
 export const TutorDashboard = () => {
-  const stats = {
-    monthlyEarnings: 2450000,
-    totalStudents: 15,
-    completedClasses: 42,
-    averageRating: 4.9,
-    upcomingClasses: 8,
-  };
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<any>({
+    monthlyEarnings: 0,
+    totalStudents: 0,
+    completedClasses: 0,
+    averageRating: 0,
+    upcomingClasses: 0,
+  });
+  const [classes, setClasses] = useState<Class[]>([]);
+
+  useEffect(() => {
+    const loadDashboardData = async () => {
+      if (!user) return;
+
+      try {
+        const [dashboardStats, userClasses] = await Promise.all([
+          dashboardAPI.getStats(user.id, user.role),
+          classAPI.getClasses(user.id, user.role),
+        ]);
+
+        setStats(dashboardStats);
+        setClasses(userClasses);
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadDashboardData();
+  }, [user]);
+
+  if (loading) {
+    return <DashboardSkeleton />;
+  }
 
   const earningsData = {
     labels: ['1주', '2주', '3주', '4주'],
@@ -133,38 +166,44 @@ export const TutorDashboard = () => {
             <Card>
               <h2 className="text-xl font-bold mb-4">다가오는 수업</h2>
               <div className="space-y-3">
-                {mockClasses.map((classItem) => (
-                  <div
-                    key={classItem.id}
-                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
-                        <BookOpen className="text-primary-500" size={24} />
-                      </div>
-                      <div>
-                        <h3 className="font-bold">{classItem.subject}</h3>
-                        <p className="text-sm text-gray-600">
-                          {new Date(classItem.scheduledAt).toLocaleString('ko-KR', {
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <div className="text-sm text-gray-600">수업 시간</div>
-                        <div className="font-bold">{classItem.duration}분</div>
-                      </div>
-                      <Button variant="outline" size="sm">
-                        준비
-                      </Button>
-                    </div>
+                {classes.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    예정된 수업이 없습니다.
                   </div>
-                ))}
+                ) : (
+                  classes.slice(0, 5).map((classItem) => (
+                    <div
+                      key={classItem.id}
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
+                          <BookOpen className="text-primary-500" size={24} />
+                        </div>
+                        <div>
+                          <h3 className="font-bold">{classItem.subject}</h3>
+                          <p className="text-sm text-gray-600">
+                            {new Date(classItem.scheduledAt).toLocaleString('ko-KR', {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-right">
+                          <div className="text-sm text-gray-600">수업 시간</div>
+                          <div className="font-bold">{classItem.duration}분</div>
+                        </div>
+                        <Button variant="outline" size="sm">
+                          준비
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </Card>
 
