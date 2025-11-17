@@ -2,6 +2,34 @@
 
 > AI 기반 맞춤형 입시 컨설팅과 온라인 수업을 제공하는 종합 교육 플랫폼
 
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/import/project?template=https://github.com/YOUR_USERNAME/unipath)
+
+## 🚀 빠른 시작 (Vercel 배포)
+
+```bash
+# 1. 저장소 클론
+git clone https://github.com/YOUR_USERNAME/unipath.git
+cd unipath
+
+# 2. 의존성 설치
+npm install
+
+# 3. 환경 변수 설정
+cp .env.example .env.local
+# VITE_TOSS_CLIENT_KEY에 TossPayments 키 입력
+
+# 4. 개발 서버 실행
+npm run dev
+
+# 5. Vercel 배포 (프로덕션)
+npm install -g vercel
+vercel --prod
+```
+
+**상세 가이드**: [배포 문서](./docs/DEPLOYMENT.md) | [런칭 체크리스트](./docs/LAUNCH_CHECKLIST.md)
+
+---
+
 ## 프로젝트 개요
 
 UniPath는 대학 입시를 준비하는 학생들을 위한 종합 온라인 컨설팅 플랫폼입니다. AI 기반 성적 분석, 맞춤형 학습 계획, 실시간 온라인 수업, 커뮤니티 기능을 통합하여 제공합니다.
