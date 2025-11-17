@@ -55,7 +55,7 @@ export const Landing = () => {
               <Button
                 size="lg"
                 variant="ghost"
-                className="bg-white text-primary-600 hover:bg-gray-100 shadow-lg"
+                className="bg-accent-400 text-gray-900 hover:bg-accent-500 shadow-xl font-bold"
               >
                 무료로 시작하기
               </Button>
