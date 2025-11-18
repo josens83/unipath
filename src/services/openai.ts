@@ -1,5 +1,6 @@
 import OpenAI from 'openai';
 import type { AIAnalysisResult, UniversityPrediction, StudyPlanItem } from '../types';
+import { env } from '../config/env';
 
 /**
  * OpenAI API Service
@@ -8,7 +9,7 @@ import type { AIAnalysisResult, UniversityPrediction, StudyPlanItem } from '../t
 
 // OpenAI 클라이언트 초기화
 const getOpenAI = () => {
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+  const apiKey = env.openai.apiKey;
 
   if (!apiKey) {
     console.warn('OpenAI API 키가 설정되지 않았습니다. Mock 데이터를 사용합니다.');
