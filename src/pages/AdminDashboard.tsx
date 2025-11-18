@@ -1,6 +1,10 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
+import { PageTransition } from '../components/common/PageTransition';
+import { useCountUp } from '../hooks/useCountUp';
+import { staggerContainerVariants, staggerItemVariants } from '../utils/animations';
 import {
   Users,
   DollarSign,
@@ -87,8 +91,16 @@ export const AdminDashboard = () => {
     },
   };
 
+  // Number counter animations
+  const animatedTotalUsers = useCountUp(stats.totalUsers, 1500);
+  const animatedActiveUsers = useCountUp(stats.activeUsers, 1500);
+  const animatedMonthlyRevenue = useCountUp(stats.monthlyRevenue, 1500);
+  const animatedTotalClasses = useCountUp(stats.totalClasses, 1500);
+  const animatedActiveTutors = useCountUp(stats.activeTutors, 1500);
+
   return (
-    <div className="min-h-screen bg-bg-base py-8 px-4">
+    <PageTransition>
+      <div className="min-h-screen bg-bg-base py-8 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -114,45 +126,58 @@ export const AdminDashboard = () => {
         </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <div className="flex items-center gap-3 mb-2">
-              <Users className="text-primary" size={20} />
-              <span className="text-sm text-text-secondary">전체 사용자</span>
-            </div>
-            <div className="text-2xl font-bold text-text-primary">{stats.totalUsers.toLocaleString()}</div>
-            <div className="text-xs text-secondary mt-1">
-              활성: {stats.activeUsers.toLocaleString()}
-            </div>
-          </Card>
+        <motion.div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+          variants={staggerContainerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          <motion.div variants={staggerItemVariants}>
+            <Card>
+              <div className="flex items-center gap-3 mb-2">
+                <Users className="text-primary" size={20} />
+                <span className="text-sm text-text-secondary">전체 사용자</span>
+              </div>
+              <div className="text-2xl font-bold text-text-primary">{animatedTotalUsers.toLocaleString()}</div>
+              <div className="text-xs text-secondary mt-1">
+                활성: {animatedActiveUsers.toLocaleString()}
+              </div>
+            </Card>
+          </motion.div>
 
-          <Card>
-            <div className="flex items-center gap-3 mb-2">
-              <DollarSign className="text-secondary" size={20} />
-              <span className="text-sm text-text-secondary">월간 매출</span>
-            </div>
-            <div className="text-2xl font-bold text-text-primary">₩{(stats.monthlyRevenue / 1000000).toFixed(1)}M</div>
-            <div className="text-xs text-secondary mt-1">↑ 전월 대비 +8.3%</div>
-          </Card>
+          <motion.div variants={staggerItemVariants}>
+            <Card>
+              <div className="flex items-center gap-3 mb-2">
+                <DollarSign className="text-secondary" size={20} />
+                <span className="text-sm text-text-secondary">월간 매출</span>
+              </div>
+              <div className="text-2xl font-bold text-text-primary">₩{(animatedMonthlyRevenue / 1000000).toFixed(1)}M</div>
+              <div className="text-xs text-secondary mt-1">↑ 전월 대비 +8.3%</div>
+            </Card>
+          </motion.div>
 
-          <Card>
-            <div className="flex items-center gap-3 mb-2">
-              <BookOpen className="text-accent" size={20} />
-              <span className="text-sm text-text-secondary">총 수업</span>
-            </div>
-            <div className="text-2xl font-bold text-text-primary">{stats.totalClasses.toLocaleString()}회</div>
-            <div className="text-xs text-text-tertiary mt-1">누적</div>
-          </Card>
+          <motion.div variants={staggerItemVariants}>
+            <Card>
+              <div className="flex items-center gap-3 mb-2">
+                <BookOpen className="text-accent" size={20} />
+                <span className="text-sm text-text-secondary">총 수업</span>
+              </div>
+              <div className="text-2xl font-bold text-text-primary">{animatedTotalClasses.toLocaleString()}회</div>
+              <div className="text-xs text-text-tertiary mt-1">누적</div>
+            </Card>
+          </motion.div>
 
-          <Card>
-            <div className="flex items-center gap-3 mb-2">
-              <UserCheck className="text-purple-500 dark:text-purple-400" size={20} />
-              <span className="text-sm text-text-secondary">활성 튜터</span>
-            </div>
-            <div className="text-2xl font-bold text-text-primary">{stats.activeTutors}</div>
-            <div className="text-xs text-text-tertiary mt-1">승인 완료</div>
-          </Card>
-        </div>
+          <motion.div variants={staggerItemVariants}>
+            <Card>
+              <div className="flex items-center gap-3 mb-2">
+                <UserCheck className="text-purple-500 dark:text-purple-400" size={20} />
+                <span className="text-sm text-text-secondary">활성 튜터</span>
+              </div>
+              <div className="text-2xl font-bold text-text-primary">{animatedActiveTutors}</div>
+              <div className="text-xs text-text-tertiary mt-1">승인 완료</div>
+            </Card>
+          </motion.div>
+        </motion.div>
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
@@ -325,6 +350,7 @@ export const AdminDashboard = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </PageTransition>
   );
 };
