@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { PageTransition } from '../components/common/PageTransition';
@@ -331,20 +331,37 @@ export const Community = () => {
         )}
 
         {/* Post Modal */}
-        {showPostModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50 p-4">
-            <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-text-primary">
-                  {editingPost ? '게시글 수정' : '새 게시글 작성'}
-                </h2>
-                <button
-                  onClick={() => setShowPostModal(false)}
-                  className="text-text-tertiary hover:text-text-primary transition-colors"
-                >
-                  <X size={24} />
-                </button>
-              </div>
+        <AnimatePresence>
+          {showPostModal && (
+            <motion.div
+              className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50 p-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => setShowPostModal(false)}
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ duration: 0.2 }}
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-text-primary">
+                      {editingPost ? '게시글 수정' : '새 게시글 작성'}
+                    </h2>
+                    <motion.button
+                      onClick={() => setShowPostModal(false)}
+                      className="text-text-tertiary hover:text-text-primary transition-colors"
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <X size={24} />
+                    </motion.button>
+                  </div>
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div>
@@ -411,9 +428,11 @@ export const Community = () => {
                   </Button>
                 </div>
               </form>
-            </Card>
-          </div>
-        )}
+                </Card>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
         </div>
       </div>
     </PageTransition>
