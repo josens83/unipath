@@ -1,10 +1,19 @@
 # UniPath - 대학입시 올인원 온라인 컨설팅
+# SEO 최적화를 위한 검색 엔진 크롤러 설정
 
 User-agent: *
 Allow: /
-Disallow: /api/
-Disallow: /dashboard/
-Disallow: /mypage/
 
-# Sitemap
-Sitemap: https://unipath.kr/sitemap.xml
+# 크롤링 제외 경로 (인증 필요 페이지)
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /profile/
+Disallow: /auth/
+Disallow: /tutoring/
+Disallow: /consulting/
+
+# Sitemap 위치 (프로덕션 URL)
+Sitemap: https://unipath-one.vercel.app/sitemap.xml
+
+# 크롤 속도 조절 (초 단위, 서버 부하 방지)
+Crawl-delay: 1
