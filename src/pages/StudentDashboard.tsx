@@ -2,6 +2,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { PageTransition } from '../components/common/PageTransition';
+import { useCountUp } from '../hooks/useCountUp';
 import {
   Calendar,
   BookOpen,
@@ -111,6 +112,13 @@ export const StudentDashboard = () => {
 
   const upcomingClass = classes.find(c => c.status === 'scheduled');
 
+  // 숫자 카운터 애니메이션
+  const animatedTotalClasses = useCountUp(stats.totalClasses, 1500);
+  const animatedCompletedClasses = useCountUp(stats.completedClasses, 1500);
+  const animatedStudyHours = useCountUp(stats.studyHours, 1500);
+  const averagePercentile = Math.round(mockGrades.reduce((sum, g) => sum + g.percentile, 0) / mockGrades.length || 0);
+  const animatedPercentile = useCountUp(averagePercentile, 1500);
+
   return (
     <PageTransition>
       <div className="min-h-screen bg-bg-base py-8 px-4">
@@ -130,7 +138,7 @@ export const StudentDashboard = () => {
               <BookOpen className="text-primary" size={24} />
             </div>
             <div>
-              <div className="text-2xl font-bold text-text-primary">{stats.totalClasses}</div>
+              <div className="text-2xl font-bold text-text-primary">{animatedTotalClasses}</div>
               <div className="text-sm text-text-secondary">전체 수업</div>
             </div>
           </Card>
@@ -140,7 +148,7 @@ export const StudentDashboard = () => {
               <TrendingUp className="text-secondary" size={24} />
             </div>
             <div>
-              <div className="text-2xl font-bold text-text-primary">{mockGrades.reduce((sum, g) => sum + g.percentile, 0) / mockGrades.length || 0}</div>
+              <div className="text-2xl font-bold text-text-primary">{animatedPercentile}</div>
               <div className="text-sm text-text-secondary">평균 백분위</div>
             </div>
           </Card>
@@ -150,7 +158,7 @@ export const StudentDashboard = () => {
               <Target className="text-accent" size={24} />
             </div>
             <div>
-              <div className="text-2xl font-bold text-text-primary">{stats.completedClasses}</div>
+              <div className="text-2xl font-bold text-text-primary">{animatedCompletedClasses}</div>
               <div className="text-sm text-text-secondary">완료한 수업</div>
             </div>
           </Card>
@@ -160,7 +168,7 @@ export const StudentDashboard = () => {
               <Clock className="text-purple-500 dark:text-purple-400" size={24} />
             </div>
             <div>
-              <div className="text-2xl font-bold text-text-primary">{stats.studyHours}h</div>
+              <div className="text-2xl font-bold text-text-primary">{animatedStudyHours}h</div>
               <div className="text-sm text-text-secondary">학습 시간</div>
             </div>
           </Card>

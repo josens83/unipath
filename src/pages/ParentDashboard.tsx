@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { PageTransition } from '../components/common/PageTransition';
+import { useCountUp } from '../hooks/useCountUp';
 import {
   Users,
   TrendingUp,
@@ -68,6 +69,13 @@ export const ParentDashboard = () => {
     return <DashboardSkeleton />;
   }
 
+  // 숫자 카운터 애니메이션
+  const animatedStudyHours = useCountUp(stats.studyHours || 0, 1500);
+  const animatedAverageScore = useCountUp(stats.averageScore || 0, 1500);
+  const animatedPercentile = useCountUp(stats.averagePercentile || 0, 1500);
+  const animatedCompletedClasses = useCountUp(stats.completedClasses || 0, 1500);
+  const animatedPayment = useCountUp(stats.monthlyPayment || 0, 1500);
+
   return (
     <PageTransition>
       <div className="min-h-screen bg-bg-base py-8 px-4">
@@ -103,7 +111,7 @@ export const ParentDashboard = () => {
               <BookOpen className="text-primary" size={20} />
               <span className="text-sm text-text-secondary">이번 주 학습</span>
             </div>
-            <div className="text-2xl font-bold text-text-primary">{stats.studyHours || 0}시간</div>
+            <div className="text-2xl font-bold text-text-primary">{animatedStudyHours}시간</div>
             <div className="text-xs text-secondary mt-1">↑ 지난주 대비 +3h</div>
           </Card>
 
@@ -112,8 +120,8 @@ export const ParentDashboard = () => {
               <TrendingUp className="text-secondary" size={20} />
               <span className="text-sm text-text-secondary">평균 성적</span>
             </div>
-            <div className="text-2xl font-bold text-text-primary">{stats.averageScore || 0}점</div>
-            <div className="text-xs text-secondary mt-1">백분위 {stats.averagePercentile || 0}%</div>
+            <div className="text-2xl font-bold text-text-primary">{animatedAverageScore}점</div>
+            <div className="text-xs text-secondary mt-1">백분위 {animatedPercentile}%</div>
           </Card>
 
           <Card>
@@ -121,7 +129,7 @@ export const ParentDashboard = () => {
               <Calendar className="text-accent" size={20} />
               <span className="text-sm text-text-secondary">완료한 수업</span>
             </div>
-            <div className="text-2xl font-bold text-text-primary">{stats.completedClasses || 0}회</div>
+            <div className="text-2xl font-bold text-text-primary">{animatedCompletedClasses}회</div>
             <div className="text-xs text-text-secondary mt-1">이번 달</div>
           </Card>
 
@@ -130,7 +138,7 @@ export const ParentDashboard = () => {
               <DollarSign className="text-purple-500 dark:text-purple-400" size={20} />
               <span className="text-sm text-text-secondary">이번 달 결제</span>
             </div>
-            <div className="text-2xl font-bold text-text-primary">₩{(stats.monthlyPayment || 0).toLocaleString()}</div>
+            <div className="text-2xl font-bold text-text-primary">₩{animatedPayment.toLocaleString()}</div>
             <div className="text-xs text-text-secondary mt-1">{stats.subscriptionPlan || 'Free'} 플랜</div>
           </Card>
         </div>
