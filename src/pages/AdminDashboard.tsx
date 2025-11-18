@@ -88,12 +88,12 @@ export const AdminDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-bg-base py-8 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">관리자 대시보드</h1>
-          <p className="text-gray-600">플랫폼 전체 현황 및 관리</p>
+          <h1 className="text-3xl font-bold text-text-primary mb-2">관리자 대시보드</h1>
+          <p className="text-text-secondary">플랫폼 전체 현황 및 관리</p>
         </div>
 
         {/* Time Range Selector */}
@@ -104,8 +104,8 @@ export const AdminDashboard = () => {
               onClick={() => setTimeRange(range)}
               className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                 timeRange === range
-                  ? 'bg-primary-500 text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-100'
+                  ? 'bg-primary text-white'
+                  : 'bg-bg-surface text-text-primary border border-border hover:bg-bg-subtle'
               }`}
             >
               {range === 'week' ? '주간' : range === 'month' ? '월간' : '연간'}
@@ -117,40 +117,40 @@ export const AdminDashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card>
             <div className="flex items-center gap-3 mb-2">
-              <Users className="text-primary-500" size={20} />
-              <span className="text-sm text-gray-600">전체 사용자</span>
+              <Users className="text-primary" size={20} />
+              <span className="text-sm text-text-secondary">전체 사용자</span>
             </div>
-            <div className="text-2xl font-bold">{stats.totalUsers.toLocaleString()}</div>
-            <div className="text-xs text-secondary-500 mt-1">
+            <div className="text-2xl font-bold text-text-primary">{stats.totalUsers.toLocaleString()}</div>
+            <div className="text-xs text-secondary mt-1">
               활성: {stats.activeUsers.toLocaleString()}
             </div>
           </Card>
 
           <Card>
             <div className="flex items-center gap-3 mb-2">
-              <DollarSign className="text-secondary-500" size={20} />
-              <span className="text-sm text-gray-600">월간 매출</span>
+              <DollarSign className="text-secondary" size={20} />
+              <span className="text-sm text-text-secondary">월간 매출</span>
             </div>
-            <div className="text-2xl font-bold">₩{(stats.monthlyRevenue / 1000000).toFixed(1)}M</div>
-            <div className="text-xs text-secondary-500 mt-1">↑ 전월 대비 +8.3%</div>
+            <div className="text-2xl font-bold text-text-primary">₩{(stats.monthlyRevenue / 1000000).toFixed(1)}M</div>
+            <div className="text-xs text-secondary mt-1">↑ 전월 대비 +8.3%</div>
           </Card>
 
           <Card>
             <div className="flex items-center gap-3 mb-2">
-              <BookOpen className="text-accent-500" size={20} />
-              <span className="text-sm text-gray-600">총 수업</span>
+              <BookOpen className="text-accent" size={20} />
+              <span className="text-sm text-text-secondary">총 수업</span>
             </div>
-            <div className="text-2xl font-bold">{stats.totalClasses.toLocaleString()}회</div>
-            <div className="text-xs text-gray-500 mt-1">누적</div>
+            <div className="text-2xl font-bold text-text-primary">{stats.totalClasses.toLocaleString()}회</div>
+            <div className="text-xs text-text-tertiary mt-1">누적</div>
           </Card>
 
           <Card>
             <div className="flex items-center gap-3 mb-2">
-              <UserCheck className="text-purple-500" size={20} />
-              <span className="text-sm text-gray-600">활성 튜터</span>
+              <UserCheck className="text-purple-500 dark:text-purple-400" size={20} />
+              <span className="text-sm text-text-secondary">활성 튜터</span>
             </div>
-            <div className="text-2xl font-bold">{stats.activeTutors}</div>
-            <div className="text-xs text-gray-500 mt-1">승인 완료</div>
+            <div className="text-2xl font-bold text-text-primary">{stats.activeTutors}</div>
+            <div className="text-xs text-text-tertiary mt-1">승인 완료</div>
           </Card>
         </div>
 
@@ -160,8 +160,8 @@ export const AdminDashboard = () => {
             {/* Revenue Chart */}
             <Card>
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold">매출 추이</h2>
-                <TrendingUp className="text-primary-500" size={24} />
+                <h2 className="text-xl font-bold text-text-primary">매출 추이</h2>
+                <TrendingUp className="text-primary" size={24} />
               </div>
               <div className="h-64">
                 <Line data={revenueData} options={chartOptions} />
@@ -171,12 +171,12 @@ export const AdminDashboard = () => {
             {/* Recent Users */}
             <Card>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold">최근 가입 사용자</h2>
+                <h2 className="text-xl font-bold text-text-primary">최근 가입 사용자</h2>
                 <div className="flex gap-2">
-                  <button className="p-2 hover:bg-gray-100 rounded-lg">
+                  <button className="p-2 hover:bg-bg-subtle rounded-lg text-text-secondary hover:text-text-primary transition-colors">
                     <Search size={20} />
                   </button>
-                  <button className="p-2 hover:bg-gray-100 rounded-lg">
+                  <button className="p-2 hover:bg-bg-subtle rounded-lg text-text-secondary hover:text-text-primary transition-colors">
                     <Filter size={20} />
                   </button>
                 </div>
@@ -184,57 +184,57 @@ export const AdminDashboard = () => {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b">
-                      <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
+                    <tr className="border-b border-border">
+                      <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
                         이름
                       </th>
-                      <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
+                      <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
                         이메일
                       </th>
-                      <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
+                      <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
                         역할
                       </th>
-                      <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
+                      <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
                         상태
                       </th>
-                      <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
+                      <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
                         가입일
                       </th>
-                      <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">
+                      <th className="text-left py-3 px-4 text-sm font-medium text-text-secondary">
                         작업
                       </th>
                     </tr>
                   </thead>
                   <tbody>
                     {recentUsers.map((user) => (
-                      <tr key={user.id} className="border-b hover:bg-gray-50">
-                        <td className="py-3 px-4 font-medium">{user.name}</td>
-                        <td className="py-3 px-4 text-sm text-gray-600">{user.email}</td>
+                      <tr key={user.id} className="border-b border-border hover:bg-bg-subtle transition-colors">
+                        <td className="py-3 px-4 font-medium text-text-primary">{user.name}</td>
+                        <td className="py-3 px-4 text-sm text-text-secondary">{user.email}</td>
                         <td className="py-3 px-4">
-                          <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full">
+                          <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs rounded-full border border-blue-200 dark:border-blue-800">
                             {user.role}
                           </span>
                         </td>
                         <td className="py-3 px-4">
                           <span
-                            className={`px-2 py-1 text-xs rounded-full ${
+                            className={`px-2 py-1 text-xs rounded-full border ${
                               user.status === 'active'
-                                ? 'bg-green-100 text-green-700'
-                                : 'bg-yellow-100 text-yellow-700'
+                                ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800'
+                                : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800'
                             }`}
                           >
                             {user.status === 'active' ? '활성' : '대기'}
                           </span>
                         </td>
-                        <td className="py-3 px-4 text-sm text-gray-600">{user.joinedAt}</td>
+                        <td className="py-3 px-4 text-sm text-text-secondary">{user.joinedAt}</td>
                         <td className="py-3 px-4">
                           <div className="flex gap-2">
                             {user.status === 'pending' && (
-                              <button className="p-1 text-green-600 hover:bg-green-50 rounded">
+                              <button className="p-1 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/30 rounded transition-colors">
                                 <UserCheck size={18} />
                               </button>
                             )}
-                            <button className="p-1 text-red-600 hover:bg-red-50 rounded">
+                            <button className="p-1 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors">
                               <Ban size={18} />
                             </button>
                           </div>
@@ -251,7 +251,7 @@ export const AdminDashboard = () => {
           <div className="space-y-6">
             {/* User Distribution */}
             <Card>
-              <h3 className="font-bold mb-4">사용자 분포</h3>
+              <h3 className="font-bold text-text-primary mb-4">사용자 분포</h3>
               <div className="h-48 flex items-center justify-center">
                 <Doughnut data={userDistribution} options={chartOptions} />
               </div>
@@ -265,9 +265,9 @@ export const AdminDashboard = () => {
                           backgroundColor: ['#4F46E5', '#10B981', '#F59E0B'][index],
                         }}
                       />
-                      <span>{role}</span>
+                      <span className="text-text-primary">{role}</span>
                     </div>
-                    <span className="font-medium">
+                    <span className="font-medium text-text-primary">
                       {[8234, 5892, 1108][index].toLocaleString()}
                     </span>
                   </div>
@@ -277,7 +277,7 @@ export const AdminDashboard = () => {
 
             {/* Quick Actions */}
             <Card>
-              <h3 className="font-bold mb-4">빠른 작업</h3>
+              <h3 className="font-bold text-text-primary mb-4">빠른 작업</h3>
               <div className="space-y-2">
                 <Button variant="primary" fullWidth className="justify-start">
                   <Users className="mr-2" size={18} />
@@ -300,25 +300,25 @@ export const AdminDashboard = () => {
 
             {/* System Status */}
             <Card>
-              <h3 className="font-bold mb-4">시스템 상태</h3>
+              <h3 className="font-bold text-text-primary mb-4">시스템 상태</h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">서버 상태</span>
-                  <span className="flex items-center gap-2 text-sm">
+                  <span className="text-sm text-text-secondary">서버 상태</span>
+                  <span className="flex items-center gap-2 text-sm text-text-primary">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                     정상
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">DB 연결</span>
-                  <span className="flex items-center gap-2 text-sm">
+                  <span className="text-sm text-text-secondary">DB 연결</span>
+                  <span className="flex items-center gap-2 text-sm text-text-primary">
                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                     정상
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">API 응답</span>
-                  <span className="text-sm font-medium">~45ms</span>
+                  <span className="text-sm text-text-secondary">API 응답</span>
+                  <span className="text-sm font-medium text-text-primary">~45ms</span>
                 </div>
               </div>
             </Card>
