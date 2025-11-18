@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { PageTransition } from '../components/common/PageTransition';
+import { staggerContainerVariants, staggerItemVariants } from '../utils/animations';
 import {
   MessageSquare,
   ThumbsUp,
@@ -249,9 +251,15 @@ export const Community = () => {
                   </Button>
                 </Card>
               ) : (
-                <div className="space-y-4">
+                <motion.div
+                  className="space-y-4"
+                  variants={staggerContainerVariants}
+                  initial="hidden"
+                  animate="visible"
+                >
                   {filteredPosts.map(post => (
-                    <Card key={post.id} className="hover:shadow-lg transition-shadow">
+                    <motion.div key={post.id} variants={staggerItemVariants}>
+                      <Card className="hover:shadow-lg transition-shadow">
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex items-center gap-2">
                           <span className={`px-2 py-1 rounded text-xs font-medium ${getCategoryBadgeColor(post.category)}`}>
@@ -308,9 +316,10 @@ export const Community = () => {
                           </div>
                         </div>
                       </div>
-                    </Card>
+                      </Card>
+                    </motion.div>
                   ))}
-                </div>
+                </motion.div>
               )}
             </div>
           </div>

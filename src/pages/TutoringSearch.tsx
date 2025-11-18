@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
 import { PageTransition } from '../components/common/PageTransition';
+import { staggerContainerVariants, staggerItemVariants } from '../utils/animations';
 import { Star, Clock, Award, Calendar } from 'lucide-react';
 import { mockTutors } from '../services/mockData';
 
@@ -62,9 +64,15 @@ export const TutoringSearch = () => {
           {filteredTutors.length}명의 튜터를 찾았습니다
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <motion.div
+          className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+          variants={staggerContainerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {filteredTutors.map(tutor => (
-            <Card key={tutor.id} hover>
+            <motion.div key={tutor.id} variants={staggerItemVariants}>
+              <Card hover>
               <div className="flex items-start gap-4 mb-4">
                 <img
                   src={tutor.avatar}
@@ -128,9 +136,10 @@ export const TutoringSearch = () => {
               <Button variant="primary" fullWidth>
                 수업 예약하기
               </Button>
-            </Card>
+              </Card>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         {filteredTutors.length === 0 && (
           <Card className="text-center py-12">
