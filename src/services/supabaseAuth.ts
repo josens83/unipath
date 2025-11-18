@@ -84,6 +84,7 @@ export const login = async (email: string, password: string): Promise<User> => {
 // 회원가입
 export const register = async (data: RegisterData): Promise<User> => {
   // 1. Supabase Auth에 사용자 생성
+  // Trigger가 자동으로 profiles 테이블에 프로필 생성
   const { data: authData, error: authError } = await supabase.auth.signUp({
     email: data.email,
     password: data.password,
@@ -103,23 +104,19 @@ export const register = async (data: RegisterData): Promise<User> => {
     throw new Error('회원가입에 실패했습니다.');
   }
 
-  // 2. profiles 테이블에 프로필 생성
+  // 2. Trigger가 생성한 프로필 가져오기 (약간의 지연 후)
+  // Trigger 실행을 기다림
+  await new Promise(resolve => setTimeout(resolve, 500));
+
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .insert({
-      id: authData.user.id,
-      email: data.email,
-      full_name: data.name,
-      phone: data.phone,
-      role: data.role,
-    })
-    .select()
+    .select('*')
+    .eq('id', authData.user.id)
     .single();
 
-  if (profileError) {
-    // 프로필 생성 실패 시 인증 사용자 삭제
-    console.error('프로필 생성 실패:', profileError);
-    throw new Error('프로필 생성에 실패했습니다.');
+  if (profileError || !profile) {
+    console.error('프로필 가져오기 실패:', profileError);
+    throw new Error('프로필을 가져올 수 없습니다. 잠시 후 다시 시도해주세요.');
   }
 
   // 3. 역할별 추가 테이블에 데이터 생성
