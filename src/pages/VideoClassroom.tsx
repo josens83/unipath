@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
+import { PageTransition } from '../components/common/PageTransition';
 import {
   Mic,
   MicOff,
@@ -165,9 +167,10 @@ export const VideoClassroom = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900">
-      {/* Top Bar */}
-      <div className="bg-gray-800 text-white p-4 flex items-center justify-between">
+    <PageTransition>
+      <div className="min-h-screen bg-gray-900 dark:bg-gray-900">
+        {/* Top Bar */}
+        <div className="bg-gray-800 dark:bg-gray-800 text-white p-4 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg" />
           <div>
@@ -321,7 +324,7 @@ export const VideoClassroom = () => {
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           {/* Left Controls */}
           <div className="flex items-center gap-3">
-            <button
+            <motion.button
               onClick={handleToggleMic}
               className={`p-4 rounded-full transition-colors ${
                 isMicOn
@@ -329,11 +332,13 @@ export const VideoClassroom = () => {
                   : 'bg-red-500 hover:bg-red-600 text-white'
               }`}
               title={isMicOn ? '마이크 끄기' : '마이크 켜기'}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               {isMicOn ? <Mic size={24} /> : <MicOff size={24} />}
-            </button>
+            </motion.button>
 
-            <button
+            <motion.button
               onClick={handleToggleCamera}
               className={`p-4 rounded-full transition-colors ${
                 isCameraOn
@@ -341,11 +346,13 @@ export const VideoClassroom = () => {
                   : 'bg-red-500 hover:bg-red-600 text-white'
               }`}
               title={isCameraOn ? '카메라 끄기' : '카메라 켜기'}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               {isCameraOn ? <Video size={24} /> : <VideoOff size={24} />}
-            </button>
+            </motion.button>
 
-            <button
+            <motion.button
               onClick={handleScreenShare}
               className={`p-4 rounded-full transition-colors ${
                 isScreenSharing
@@ -353,14 +360,16 @@ export const VideoClassroom = () => {
                   : 'bg-gray-700 hover:bg-gray-600'
               } text-white`}
               title="화면 공유"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               <Monitor size={24} />
-            </button>
+            </motion.button>
           </div>
 
           {/* Center Controls */}
           <div className="flex items-center gap-3">
-            <button
+            <motion.button
               onClick={() => setShowChat(!showChat)}
               className={`p-4 rounded-full ${
                 showChat
@@ -368,26 +377,32 @@ export const VideoClassroom = () => {
                   : 'bg-gray-700 hover:bg-gray-600'
               } text-white relative`}
               title="채팅"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               <MessageSquare size={24} />
               {!showChat && (
                 <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full" />
               )}
-            </button>
+            </motion.button>
 
-            <button
+            <motion.button
               className="p-4 rounded-full bg-gray-700 hover:bg-gray-600 text-white"
               title="수업 자료"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               <FileText size={24} />
-            </button>
+            </motion.button>
 
-            <button
+            <motion.button
               className="p-4 rounded-full bg-gray-700 hover:bg-gray-600 text-white"
               title="설정"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
               <Settings size={24} />
-            </button>
+            </motion.button>
           </div>
 
           {/* Right Controls */}
@@ -403,6 +418,7 @@ export const VideoClassroom = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </PageTransition>
   );
 };
