@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
 import { Input } from '../components/common/Input';
+import { PageTransition } from '../components/common/PageTransition';
 import { Star, Clock, Award, Calendar } from 'lucide-react';
 import { mockTutors } from '../services/mockData';
 
@@ -19,8 +20,9 @@ export const TutoringSearch = () => {
   });
 
   return (
-    <div className="min-h-screen bg-bg-base py-8 px-4">
-      <div className="max-w-7xl mx-auto">
+    <PageTransition>
+      <div className="min-h-screen bg-bg-base py-8 px-4">
+        <div className="max-w-7xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-text-primary mb-2">튜터 찾기</h1>
           <p className="text-text-secondary">나에게 딱 맞는 튜터를 찾아보세요</p>
@@ -136,7 +138,8 @@ export const TutoringSearch = () => {
             <p className="text-text-secondary">검색 결과가 없습니다</p>
           </Card>
         )}
+        </div>
       </div>
-    </div>
+    </PageTransition>
   );
 };

@@ -1,6 +1,7 @@
 import { useAuth } from '../contexts/AuthContext';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
+import { PageTransition } from '../components/common/PageTransition';
 import {
   Calendar,
   BookOpen,
@@ -111,7 +112,8 @@ export const StudentDashboard = () => {
   const upcomingClass = classes.find(c => c.status === 'scheduled');
 
   return (
-    <div className="min-h-screen bg-bg-base py-8 px-4">
+    <PageTransition>
+      <div className="min-h-screen bg-bg-base py-8 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -332,6 +334,7 @@ export const StudentDashboard = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </PageTransition>
   );
 };

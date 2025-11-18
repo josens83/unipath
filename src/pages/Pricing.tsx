@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
+import { PageTransition } from '../components/common/PageTransition';
 import { CheckCircle, CreditCard, Lock, ArrowLeft } from 'lucide-react';
 import { pricingPlans } from '../services/mockData';
 import { paymentService } from '../services/payment';
@@ -260,9 +261,10 @@ export const Pricing = () => {
 
   // Plan Selection View
   return (
-    <div className="min-h-screen bg-bg-base py-12 px-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-12">
+    <PageTransition>
+      <div className="min-h-screen bg-bg-base py-12 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-text-primary mb-4">플랜 선택</h1>
           <p className="text-xl text-text-secondary">
             나에게 맞는 플랜을 선택하고 UniPath를 시작하세요
@@ -350,7 +352,8 @@ export const Pricing = () => {
             ))}
           </div>
         </Card>
+        </div>
       </div>
-    </div>
+    </PageTransition>
   );
 };

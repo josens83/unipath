@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
+import { PageTransition } from '../components/common/PageTransition';
 import {
   TrendingUp,
   Target,
@@ -77,9 +78,10 @@ export const AIConsulting = () => {
   };
 
   return (
-    <div className="min-h-screen bg-bg-base py-8 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
+    <PageTransition>
+      <div className="min-h-screen bg-bg-base py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8">
           <h1 className="text-3xl font-bold text-text-primary mb-2 flex items-center gap-2">
             <Sparkles className="text-primary" size={32} />
             AI 입시 컨설팅
@@ -319,7 +321,8 @@ export const AIConsulting = () => {
             )}
           </div>
         </div>
+        </div>
       </div>
-    </div>
+    </PageTransition>
   );
 };

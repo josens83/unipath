@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/common/Button';
 import { Card } from '../components/common/Card';
+import { PageTransition } from '../components/common/PageTransition';
 import { loginSchema } from '../utils/validation';
 import type { LoginFormData } from '../utils/validation';
 
@@ -31,9 +32,10 @@ export const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-bg-base px-4 py-12">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
+    <PageTransition>
+      <div className="min-h-screen flex items-center justify-center bg-bg-base px-4 py-12">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg" />
           </div>
@@ -114,7 +116,8 @@ export const Login = () => {
             ← 홈으로 돌아가기
           </Link>
         </div>
+        </div>
       </div>
-    </div>
+    </PageTransition>
   );
 };

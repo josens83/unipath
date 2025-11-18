@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
+import { PageTransition } from '../components/common/PageTransition';
 import {
   Users,
   TrendingUp,
@@ -68,8 +69,9 @@ export const ParentDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-bg-base py-8 px-4">
-      <div className="max-w-7xl mx-auto">
+    <PageTransition>
+      <div className="min-h-screen bg-bg-base py-8 px-4">
+        <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-text-primary">
@@ -307,7 +309,8 @@ export const ParentDashboard = () => {
             </Card>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+    </PageTransition>
   );
 };

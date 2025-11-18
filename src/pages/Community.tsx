@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
+import { PageTransition } from '../components/common/PageTransition';
 import {
   MessageSquare,
   ThumbsUp,
@@ -148,9 +149,10 @@ export const Community = () => {
   };
 
   return (
-    <div className="min-h-screen bg-bg-base py-8 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex justify-between items-center">
+    <PageTransition>
+      <div className="min-h-screen bg-bg-base py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-8 flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-text-primary mb-2">커뮤니티</h1>
             <p className="text-text-secondary">수험생들과 정보를 공유하고 함께 성장하세요</p>
@@ -403,7 +405,8 @@ export const Community = () => {
             </Card>
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </PageTransition>
   );
 };
