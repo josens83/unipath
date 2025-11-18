@@ -45,7 +45,40 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['-apple-system', 'BlinkMacSystemFont', 'Apple SD Gothic Neo', 'Pretendard', 'Roboto', 'Noto Sans KR', 'Segoe UI', 'Malgun Gothic', 'sans-serif'],
+        sans: ['Inter var', 'Pretendard', '-apple-system', 'BlinkMacSystemFont', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Segoe UI', 'Malgun Gothic', 'sans-serif'],
+        display: ['Inter var', 'Pretendard', 'sans-serif'],
+      },
+      // 세밀한 테두리
+      borderWidth: {
+        '0.5': '0.5px',
+        '1.5': '1.5px',
+      },
+      // 추가 그림자 (컬러 글로우 효과)
+      boxShadow: {
+        'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.03)',
+        'glow-sm': '0 0 10px rgba(79, 70, 229, 0.15)',
+        'glow-md': '0 0 20px rgba(79, 70, 229, 0.2)',
+        'glow-lg': '0 0 30px rgba(79, 70, 229, 0.25)',
+      },
+      // 키프레임 애니메이션
+      keyframes: {
+        'fade-in': {
+          '0%': { opacity: '0', transform: 'translateY(10px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'slide-up': {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'gradient': {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
+        },
+      },
+      animation: {
+        'fade-in': 'fade-in 0.5s ease-out',
+        'slide-up': 'slide-up 0.6s ease-out',
+        'gradient': 'gradient 3s ease infinite',
       },
     },
   },

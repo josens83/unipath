@@ -11,104 +11,208 @@ import {
 import { pricingPlans } from '../services/mockData';
 
 export const Landing = () => {
-  const features = [
-    {
-      icon: BookOpen,
-      title: '1:1 맞춤 과외',
-      description: '검증된 우수 튜터와의 실시간 화상 수업',
-    },
-    {
-      icon: Users,
-      title: 'AI 입시 컨설팅',
-      description: '성적 분석 기반 맞춤형 대학 추천',
-    },
-    {
-      icon: MessageSquare,
-      title: '커뮤니티',
-      description: '수험생들과의 정보 공유 및 스터디 그룹',
-    },
-    {
-      icon: TrendingUp,
-      title: '학습 분석',
-      description: '실시간 성적 추이 및 진도 관리',
-    },
-  ];
-
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-primary-500 via-primary-600 to-secondary-500 text-white py-20 px-4">
-        <div className="max-w-6xl mx-auto text-center">
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">
-            대학입시의 새로운 길,
-            <br />
-            <span className="text-accent-300">UniPath</span>
-          </h1>
-          <p className="text-xl md:text-2xl mb-8 text-gray-100">
-            AI 기반 입시 컨설팅과 1:1 맞춤 과외로
-            <br />
-            꿈의 대학 합격을 현실로 만드세요
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <a href="/auth/register">
-              <Button
-                size="lg"
-                variant="ghost"
-                className="bg-accent-400 text-gray-900 hover:bg-accent-500 shadow-xl font-bold"
-              >
-                무료로 시작하기
-              </Button>
-            </a>
-            <a href="/auth/login">
-              <Button
-                size="lg"
-                variant="ghost"
-                className="border-2 border-white text-white hover:bg-white/10"
-              >
-                로그인
-              </Button>
-            </a>
-          </div>
+      {/* ✨ Enhanced Hero Section with Glow Effects */}
+      <section className="relative overflow-hidden">
+        {/* 그라데이션 배경 */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-600" />
 
-          <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-8">
-            <div>
-              <div className="text-4xl font-bold">10,000+</div>
-              <div className="text-gray-200">수강생</div>
+        {/* ✨ Linear 스타일 글로우 효과 */}
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-primary-400/30 rounded-full blur-3xl opacity-20 animate-pulse"
+          style={{ animationDuration: '4s' }}
+        />
+        <div
+          className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-secondary-400/30 rounded-full blur-3xl opacity-20 animate-pulse"
+          style={{ animationDuration: '5s', animationDelay: '1s' }}
+        />
+
+        {/* ✨ 그리드 패턴 오버레이 */}
+        <div
+          className="absolute inset-0 opacity-10"
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
+              linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px)
+            `,
+            backgroundSize: '40px 40px',
+          }}
+        />
+
+        {/* 컨텐츠 */}
+        <div className="relative z-10 text-white py-20 px-4">
+          <div className="max-w-6xl mx-auto text-center">
+            {/* ✨ 개선된 헤드라인 */}
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+              대학입시의 새로운 길,
+              <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-300 via-accent-200 to-accent-300 bg-size-200 animate-gradient">
+                UniPath
+              </span>
+            </h1>
+
+            <p className="text-xl md:text-2xl mb-8 text-gray-100 max-w-3xl mx-auto leading-relaxed">
+              AI 기반 입시 컨설팅과 1:1 맞춤 과외로
+              <br />
+              꿈의 대학 합격을 현실로 만드세요
+            </p>
+
+            {/* ✨ 개선된 CTA 버튼 */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <a href="/auth/register">
+                <Button
+                  size="lg"
+                  className="bg-white text-primary-600 hover:bg-gray-50 hover:text-primary-700 shadow-2xl hover:shadow-white/20 font-bold px-8 py-4 border-2 border-white/20"
+                >
+                  무료로 시작하기 →
+                </Button>
+              </a>
+
+              <a href="/auth/login">
+                <Button
+                  size="lg"
+                  variant="ghost"
+                  className="border-2 border-white/30 text-white hover:text-white hover:bg-white/10 hover:border-white/50 backdrop-blur-sm px-8 py-4"
+                >
+                  로그인
+                </Button>
+              </a>
             </div>
-            <div>
-              <div className="text-4xl font-bold">500+</div>
-              <div className="text-gray-200">우수 튜터</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold">95%</div>
-              <div className="text-gray-200">만족도</div>
-            </div>
-            <div>
-              <div className="text-4xl font-bold">4.8/5</div>
-              <div className="text-gray-200">평점</div>
+
+            {/* ✨ 개선된 통계 섹션 */}
+            <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6">
+              {[
+                { value: '10,000+', label: '수강생', icon: '👨‍🎓' },
+                { value: '500+', label: '우수 튜터', icon: '👨‍🏫' },
+                { value: '95%', label: '만족도', icon: '⭐' },
+                { value: '4.8/5', label: '평점', icon: '🏆' },
+              ].map((stat, index) => (
+                <div
+                  key={index}
+                  className="relative group bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 hover:bg-white/15 hover:border-white/30 transition-all duration-300 hover:-translate-y-1"
+                >
+                  {/* 아이콘 */}
+                  <div className="text-4xl mb-2 transform group-hover:scale-110 transition-transform">
+                    {stat.icon}
+                  </div>
+
+                  {/* 숫자 */}
+                  <div className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-200">
+                    {stat.value}
+                  </div>
+
+                  {/* 라벨 */}
+                  <div className="text-sm text-gray-200 mt-1">{stat.label}</div>
+
+                  {/* 호버 글로우 */}
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* ✨ Bento Grid Features Section */}
       <section className="py-20 px-4 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl font-bold text-center mb-12">
             UniPath만의 <span className="text-primary-500">특별한 기능</span>
           </h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <Card key={index} className="text-center" hover>
-                <div className="flex justify-center mb-4">
-                  <div className="p-4 bg-primary-100 rounded-full">
-                    <feature.icon size={32} className="text-primary-500" />
+
+          {/* ✨ Apple-style Bento Grid Layout */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 auto-rows-[200px]">
+            {/* Large Featured Card - AI 입시 컨설팅 (2x2) */}
+            <div className="md:col-span-2 md:row-span-2 group relative overflow-hidden bg-gradient-to-br from-primary-500 to-primary-600 rounded-3xl p-8 text-white transition-all duration-500 hover:shadow-2xl hover:shadow-primary-500/30 hover:-translate-y-1">
+              {/* Background Pattern */}
+              <div className="absolute inset-0 opacity-10">
+                <div
+                  style={{
+                    backgroundImage: `
+                      linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
+                      linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px)
+                    `,
+                    backgroundSize: '30px 30px',
+                  }}
+                  className="w-full h-full"
+                />
+              </div>
+
+              {/* Content */}
+              <div className="relative z-10 h-full flex flex-col justify-between">
+                <div>
+                  <div className="inline-flex p-4 bg-white/20 backdrop-blur-sm rounded-2xl mb-6 group-hover:scale-110 transition-transform duration-300">
+                    <Users size={48} className="text-white" />
                   </div>
+                  <h3 className="text-3xl font-bold mb-4">AI 입시 컨설팅</h3>
+                  <p className="text-lg text-white/90 leading-relaxed">
+                    성적 분석 기반 맞춤형 대학 추천
+                    <br />
+                    <span className="text-sm text-white/70 mt-2 block">
+                      실시간 합격률 예측 및 최적 전략 제시
+                    </span>
+                  </p>
                 </div>
-                <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
-              </Card>
-            ))}
+
+                {/* Hover Glow Effect */}
+                <div className="absolute inset-0 bg-gradient-to-t from-white/0 via-white/0 to-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              </div>
+            </div>
+
+            {/* Medium Card - 1:1 맞춤 과외 (1x2) */}
+            <div className="md:col-span-2 md:row-span-1 group relative overflow-hidden bg-gradient-to-br from-secondary-500 to-secondary-600 rounded-3xl p-6 text-white transition-all duration-500 hover:shadow-2xl hover:shadow-secondary-500/30 hover:-translate-y-1">
+              <div className="relative z-10 h-full flex items-center gap-6">
+                <div className="flex-shrink-0 p-4 bg-white/20 backdrop-blur-sm rounded-2xl group-hover:scale-110 transition-transform duration-300">
+                  <BookOpen size={40} className="text-white" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold mb-2">1:1 맞춤 과외</h3>
+                  <p className="text-white/90">
+                    검증된 우수 튜터와의 실시간 화상 수업
+                  </p>
+                </div>
+              </div>
+
+              {/* Hover Glow Effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-white/0 to-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            </div>
+
+            {/* Small Card - 커뮤니티 (1x1) */}
+            <div className="md:col-span-1 md:row-span-1 group relative overflow-hidden bg-gradient-to-br from-accent-400 to-accent-500 rounded-3xl p-6 text-white transition-all duration-500 hover:shadow-2xl hover:shadow-accent-500/30 hover:-translate-y-1">
+              <div className="relative z-10 h-full flex flex-col justify-between">
+                <div className="inline-flex p-3 bg-white/20 backdrop-blur-sm rounded-xl w-fit group-hover:scale-110 transition-transform duration-300">
+                  <MessageSquare size={32} className="text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2">커뮤니티</h3>
+                  <p className="text-sm text-white/90">
+                    수험생 정보 공유 및 스터디
+                  </p>
+                </div>
+              </div>
+
+              {/* Hover Glow Effect */}
+              <div className="absolute inset-0 bg-gradient-to-tl from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            </div>
+
+            {/* Small Card - 학습 분석 (1x1) */}
+            <div className="md:col-span-1 md:row-span-1 group relative overflow-hidden bg-gradient-to-br from-gray-700 to-gray-800 rounded-3xl p-6 text-white transition-all duration-500 hover:shadow-2xl hover:shadow-gray-700/30 hover:-translate-y-1">
+              <div className="relative z-10 h-full flex flex-col justify-between">
+                <div className="inline-flex p-3 bg-white/20 backdrop-blur-sm rounded-xl w-fit group-hover:scale-110 transition-transform duration-300">
+                  <TrendingUp size={32} className="text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold mb-2">학습 분석</h3>
+                  <p className="text-sm text-white/90">
+                    실시간 성적 추이 및 진도 관리
+                  </p>
+                </div>
+              </div>
+
+              {/* Hover Glow Effect */}
+              <div className="absolute inset-0 bg-gradient-to-tr from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            </div>
           </div>
         </div>
       </section>

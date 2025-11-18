@@ -6,13 +6,15 @@ interface CardProps {
   className?: string;
   padding?: 'none' | 'sm' | 'md' | 'lg';
   hover?: boolean;
+  gradient?: boolean; // ✨ 그라데이션 테두리 옵션
 }
 
 export const Card = ({
   children,
   className,
   padding = 'md',
-  hover = false
+  hover = false,
+  gradient = false,
 }: CardProps) => {
   const paddings = {
     none: 'p-0',
@@ -24,9 +26,29 @@ export const Card = ({
   return (
     <div
       className={clsx(
+        // ✨ Linear 스타일 개선
         'bg-white rounded-xl shadow-md',
+        'border border-gray-100',
+
+        // ✨ 호버 효과 강화
+        hover && `
+          transition-all duration-300 ease-out
+          hover:shadow-xl hover:shadow-primary-500/10
+          hover:border-primary-200
+          hover:-translate-y-1
+        `,
+
+        // ✨ 그라데이션 테두리 (옵션)
+        gradient && `
+          relative
+          before:absolute before:inset-0
+          before:rounded-xl before:p-[1px]
+          before:bg-gradient-to-br before:from-primary-400 before:to-secondary-400
+          before:-z-10
+          bg-clip-padding
+        `,
+
         paddings[padding],
-        hover && 'transition-shadow duration-200 hover:shadow-lg',
         className
       )}
     >
