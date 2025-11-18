@@ -12,3 +12,6 @@ export type { ValidationRule, UseFormOptions, UseFormResult } from './useForm';
 export { useDebounce } from './useDebounce';
 
 export { useLocalStorage } from './useLocalStorage';
+
+export { useDarkMode } from './useDarkMode';
+export type { Theme } from './useDarkMode';

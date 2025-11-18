@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from './Button';
+import { ThemeToggle } from './ThemeToggle';
 
 export const Navbar = () => {
   const { user, logout, isAuthenticated } = useAuth();
@@ -35,14 +36,14 @@ export const Navbar = () => {
       ];
 
   return (
-    <nav className="bg-white/80 backdrop-blur-xl border-b border-gray-200/50 shadow-sm sticky top-0 z-50 transition-all duration-300">
+    <nav className="bg-bg-surface/80 backdrop-blur-xl border-b border-border shadow-sm sticky top-0 z-50 transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* ✨ Enhanced Logo with Microinteractions */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-2 group">
               <div className="w-8 h-8 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg group-hover:shadow-lg group-hover:shadow-primary-500/30 transition-all duration-300 group-hover:scale-110" />
-              <span className="text-xl font-bold text-gray-900 group-hover:text-primary-500 transition-colors duration-200">
+              <span className="text-xl font-bold text-text-primary group-hover:text-primary transition-colors duration-200">
                 UniPath
               </span>
             </Link>
@@ -54,17 +55,22 @@ export const Navbar = () => {
               <Link
                 key={link.to}
                 to={link.to}
-                className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-primary-50/80 transition-all duration-200 group hover:shadow-sm"
+                className="flex items-center space-x-1.5 px-4 py-2 rounded-xl text-text-secondary hover:text-primary hover:bg-primary-subtle transition-all duration-200 group hover:shadow-sm"
               >
                 <link.icon size={18} className="group-hover:scale-110 transition-transform duration-200" />
                 <span className="font-medium">{link.label}</span>
               </Link>
             ))}
 
+            {/* ✨ Theme Toggle */}
+            <div className="ml-2">
+              <ThemeToggle />
+            </div>
+
             {isAuthenticated ? (
-              <div className="flex items-center space-x-2 ml-4 pl-4 border-l border-gray-200/50">
+              <div className="flex items-center space-x-2 ml-4 pl-4 border-l border-border">
                 <Link to="/mypage">
-                  <Button variant="ghost" size="sm" className="flex items-center space-x-2 hover:bg-gray-100/80">
+                  <Button variant="ghost" size="sm" className="flex items-center space-x-2">
                     <User size={18} />
                     <span>{user?.name}</span>
                   </Button>
@@ -73,7 +79,7 @@ export const Navbar = () => {
                   variant="outline"
                   size="sm"
                   onClick={handleLogout}
-                  className="flex items-center space-x-1 hover:border-red-300 hover:text-red-600 hover:bg-red-50/80"
+                  className="flex items-center space-x-1 hover:border-red-300 hover:text-red-600 dark:hover:border-red-500 dark:hover:text-red-400 hover:bg-red-50/80 dark:hover:bg-red-950/50"
                 >
                   <LogOut size={16} />
                   <span>로그아웃</span>
@@ -82,7 +88,7 @@ export const Navbar = () => {
             ) : (
               <div className="flex items-center space-x-2 ml-4">
                 <Link to="/auth/login">
-                  <Button variant="ghost" size="sm" className="hover:bg-gray-100/80">로그인</Button>
+                  <Button variant="ghost" size="sm">로그인</Button>
                 </Link>
                 <Link to="/auth/register">
                   <Button variant="primary" size="sm" className="shadow-md hover:shadow-lg hover:shadow-primary-500/25">회원가입</Button>
@@ -92,10 +98,11 @@ export const Navbar = () => {
           </div>
 
           {/* ✨ Enhanced Mobile Menu Button */}
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center space-x-2">
+            <ThemeToggle />
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl text-gray-700 hover:bg-gray-100/80 hover:text-primary-600 transition-all duration-200 active:scale-95"
+              className="p-2 rounded-xl text-text-secondary hover:bg-bg-subtle hover:text-primary transition-all duration-200 active:scale-95"
             >
               {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -113,14 +120,14 @@ export const Navbar = () => {
 
       {/* ✨ Enhanced Mobile Navigation */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-gray-200/50 bg-white/95 backdrop-blur-xl relative z-50 shadow-xl animate-fade-in">
+        <div className="md:hidden border-t border-border bg-bg-surface/95 backdrop-blur-xl relative z-50 shadow-xl animate-fade-in">
           <div className="px-4 pt-3 pb-4 space-y-2">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-primary-50/80 transition-all duration-200 group"
+                className="flex items-center space-x-3 px-4 py-3 rounded-xl text-text-secondary hover:text-primary hover:bg-primary-subtle transition-all duration-200 group"
               >
                 <link.icon size={20} className="group-hover:scale-110 transition-transform duration-200" />
                 <span className="font-medium">{link.label}</span>
@@ -129,11 +136,11 @@ export const Navbar = () => {
 
             {isAuthenticated ? (
               <>
-                <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent my-2" />
+                <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent my-2" />
                 <Link
                   to="/mypage"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 hover:text-primary-600 hover:bg-primary-50/80 transition-all duration-200 group"
+                  className="flex items-center space-x-3 px-4 py-3 rounded-xl text-text-secondary hover:text-primary hover:bg-primary-subtle transition-all duration-200 group"
                 >
                   <User size={20} className="group-hover:scale-110 transition-transform duration-200" />
                   <span className="font-medium">{user?.name}</span>
@@ -143,7 +150,7 @@ export const Navbar = () => {
                     handleLogout();
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-700 hover:text-red-600 hover:bg-red-50/80 transition-all duration-200 group"
+                  className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-text-secondary hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50/80 dark:hover:bg-red-950/50 transition-all duration-200 group"
                 >
                   <LogOut size={20} className="group-hover:scale-110 transition-transform duration-200" />
                   <span className="font-medium">로그아웃</span>
@@ -151,9 +158,9 @@ export const Navbar = () => {
               </>
             ) : (
               <div className="space-y-2 pt-3">
-                <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mb-3" />
+                <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent mb-3" />
                 <Link to="/auth/login" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="ghost" fullWidth className="hover:bg-gray-100/80">로그인</Button>
+                  <Button variant="ghost" fullWidth>로그인</Button>
                 </Link>
                 <Link to="/auth/register" onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="primary" fullWidth className="shadow-md hover:shadow-lg hover:shadow-primary-500/25">회원가입</Button>
