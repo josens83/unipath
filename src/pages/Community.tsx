@@ -139,21 +139,21 @@ export const Community = () => {
 
   const getCategoryBadgeColor = (category: string) => {
     const colors: Record<string, string> = {
-      notice: 'bg-red-100 text-red-700',
-      free: 'bg-blue-100 text-blue-700',
-      success: 'bg-green-100 text-green-700',
-      qna: 'bg-yellow-100 text-yellow-700',
+      notice: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800',
+      free: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800',
+      success: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800',
+      qna: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 border border-yellow-200 dark:border-yellow-800',
     };
-    return colors[category] || 'bg-gray-100 text-gray-700';
+    return colors[category] || 'bg-bg-subtle text-text-primary border border-border';
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <div className="min-h-screen bg-bg-base py-8 px-4">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">커뮤니티</h1>
-            <p className="text-gray-600">수험생들과 정보를 공유하고 함께 성장하세요</p>
+            <h1 className="text-3xl font-bold text-text-primary mb-2">커뮤니티</h1>
+            <p className="text-text-secondary">수험생들과 정보를 공유하고 함께 성장하세요</p>
           </div>
           <Button
             variant="primary"
@@ -171,8 +171,8 @@ export const Community = () => {
             onClick={() => setActiveTab('posts')}
             className={`px-6 py-3 rounded-lg font-medium transition-all ${
               activeTab === 'posts'
-                ? 'bg-primary-500 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-100'
+                ? 'bg-primary text-white'
+                : 'bg-bg-surface text-text-primary border border-border hover:bg-bg-subtle'
             }`}
           >
             <MessageSquare className="inline mr-2" size={20} />
@@ -182,8 +182,8 @@ export const Community = () => {
             onClick={() => setActiveTab('groups')}
             className={`px-6 py-3 rounded-lg font-medium transition-all ${
               activeTab === 'groups'
-                ? 'bg-primary-500 text-white'
-                : 'bg-white text-gray-700 hover:bg-gray-100'
+                ? 'bg-primary text-white'
+                : 'bg-bg-surface text-text-primary border border-border hover:bg-bg-subtle'
             }`}
           >
             <Users className="inline mr-2" size={20} />
@@ -196,7 +196,7 @@ export const Community = () => {
             {/* Sidebar */}
             <div className="lg:col-span-1">
               <Card>
-                <h3 className="font-bold mb-4">카테고리</h3>
+                <h3 className="font-bold text-text-primary mb-4">카테고리</h3>
                 <div className="space-y-2">
                   {categories.map(category => (
                     <button
@@ -204,8 +204,8 @@ export const Community = () => {
                       onClick={() => setSelectedCategory(category.id)}
                       className={`w-full text-left px-3 py-2 rounded-lg transition-all ${
                         selectedCategory === category.id
-                          ? 'bg-primary-50 text-primary-700 font-medium'
-                          : 'text-gray-700 hover:bg-gray-100'
+                          ? 'bg-primary-subtle text-primary font-medium'
+                          : 'text-text-primary hover:bg-bg-subtle'
                       }`}
                     >
                       {category.name}
@@ -220,13 +220,13 @@ export const Community = () => {
               {/* Search */}
               <Card className="mb-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-3 text-gray-400" size={20} />
+                  <Search className="absolute left-3 top-3 text-text-quaternary" size={20} />
                   <input
                     type="text"
                     placeholder="검색어를 입력하세요"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full pl-10 pr-4 py-3 border border-border rounded-lg bg-bg-base text-text-primary focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                   />
                 </div>
               </Card>
@@ -236,8 +236,8 @@ export const Community = () => {
                 <ListSkeleton items={5} />
               ) : filteredPosts.length === 0 ? (
                 <Card className="text-center py-12">
-                  <MessageSquare className="mx-auto mb-4 text-gray-400" size={48} />
-                  <p className="text-gray-600">게시글이 없습니다.</p>
+                  <MessageSquare className="mx-auto mb-4 text-text-quaternary" size={48} />
+                  <p className="text-text-secondary">게시글이 없습니다.</p>
                   <Button
                     variant="primary"
                     onClick={handleCreatePost}
@@ -256,7 +256,7 @@ export const Community = () => {
                             {categories.find(c => c.id === post.category)?.name}
                           </span>
                           {post.tags.map((tag, idx) => (
-                            <span key={idx} className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
+                            <span key={idx} className="px-2 py-1 bg-bg-subtle text-text-secondary rounded text-xs border border-border-subtle">
                               #{tag}
                             </span>
                           ))}
@@ -265,13 +265,13 @@ export const Community = () => {
                           <div className="flex gap-2">
                             <button
                               onClick={() => handleEditPost(post)}
-                              className="text-gray-500 hover:text-primary-500"
+                              className="text-text-tertiary hover:text-primary transition-colors"
                             >
                               <Edit size={16} />
                             </button>
                             <button
                               onClick={() => handleDeletePost(post.id)}
-                              className="text-gray-500 hover:text-red-500"
+                              className="text-text-tertiary hover:text-red-500 dark:hover:text-red-400 transition-colors"
                             >
                               <Trash2 size={16} />
                             </button>
@@ -279,14 +279,14 @@ export const Community = () => {
                         )}
                       </div>
 
-                      <h3 className="text-lg font-bold text-gray-900 mb-2">
+                      <h3 className="text-lg font-bold text-text-primary mb-2">
                         {post.title}
                       </h3>
-                      <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                      <p className="text-text-secondary text-sm mb-4 line-clamp-2">
                         {post.content}
                       </p>
 
-                      <div className="flex items-center justify-between text-sm text-gray-500">
+                      <div className="flex items-center justify-between text-sm text-text-tertiary">
                         <div className="flex items-center gap-4">
                           <span>{post.authorName}</span>
                           <span>{new Date(post.createdAt).toLocaleDateString()}</span>
@@ -314,22 +314,22 @@ export const Community = () => {
           </div>
         ) : (
           <Card className="text-center py-12">
-            <Users className="mx-auto mb-4 text-gray-400" size={48} />
-            <p className="text-gray-600">스터디 그룹 기능은 준비 중입니다.</p>
+            <Users className="mx-auto mb-4 text-text-quaternary" size={48} />
+            <p className="text-text-secondary">스터디 그룹 기능은 준비 중입니다.</p>
           </Card>
         )}
 
         {/* Post Modal */}
         {showPostModal && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50 p-4">
             <Card className="max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">
+                <h2 className="text-2xl font-bold text-text-primary">
                   {editingPost ? '게시글 수정' : '새 게시글 작성'}
                 </h2>
                 <button
                   onClick={() => setShowPostModal(false)}
-                  className="text-gray-500 hover:text-gray-700"
+                  className="text-text-tertiary hover:text-text-primary transition-colors"
                 >
                   <X size={24} />
                 </button>
@@ -337,49 +337,49 @@ export const Community = () => {
 
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-text-primary mb-1">
                     카테고리
                   </label>
                   <select
                     {...register('category')}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-4 py-2 border border-border rounded-lg bg-bg-base text-text-primary focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                   >
                     <option value="free">자유게시판</option>
                     <option value="success">합격수기</option>
                     <option value="qna">Q&A</option>
                   </select>
                   {errors.category && (
-                    <p className="mt-1 text-sm text-red-600">{errors.category.message}</p>
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.category.message}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-text-primary mb-1">
                     제목
                   </label>
                   <input
                     {...register('title')}
                     type="text"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-4 py-2 border border-border rounded-lg bg-bg-base text-text-primary focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                     placeholder="제목을 입력하세요"
                   />
                   {errors.title && (
-                    <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.title.message}</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-text-primary mb-1">
                     내용
                   </label>
                   <textarea
                     {...register('content')}
                     rows={10}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    className="w-full px-4 py-2 border border-border rounded-lg bg-bg-base text-text-primary focus:outline-none focus:ring-2 focus:ring-primary transition-all"
                     placeholder="내용을 입력하세요"
                   />
                   {errors.content && (
-                    <p className="mt-1 text-sm text-red-600">{errors.content.message}</p>
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.content.message}</p>
                   )}
                 </div>
 
