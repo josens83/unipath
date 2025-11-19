@@ -1,9 +1,11 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Navbar } from './components/common/Navbar';
 import { ToastProvider } from './components/common/ToastProvider';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
+import { Loader2 } from 'lucide-react';
 
 // Eager-loaded pages (critical for initial load)
 import { Landing } from './pages/Landing';
@@ -25,12 +27,12 @@ const VideoClassroom = lazy(() => import('./pages/VideoClassroom').then(m => ({ 
 const PaymentSuccess = lazy(() => import('./pages/PaymentSuccess').then(m => ({ default: m.PaymentSuccess })));
 const PaymentFail = lazy(() => import('./pages/PaymentFail').then(m => ({ default: m.PaymentFail })));
 
-// Loading component
+// Loading component with dark mode support
 const PageLoader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+  <div className="min-h-screen flex items-center justify-center bg-bg-base">
     <div className="text-center">
-      <div className="w-16 h-16 border-4 border-primary-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-      <p className="text-gray-600">로딩 중...</p>
+      <Loader2 className="w-16 h-16 text-primary animate-spin mx-auto mb-4" />
+      <p className="text-text-secondary">로딩 중...</p>
     </div>
   </div>
 );
@@ -66,18 +68,21 @@ const DashboardRouter = () => {
 };
 
 function AppContent() {
+  const location = useLocation();
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-bg-base">
       <Navbar />
-      <Suspense fallback={<PageLoader />}>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Landing />} />
-          <Route path="/auth/login" element={<Login />} />
-          <Route path="/auth/register" element={<Register />} />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route path="/payment/success" element={<PaymentSuccess />} />
-          <Route path="/payment/fail" element={<PaymentFail />} />
+      <AnimatePresence mode="wait">
+        <Suspense fallback={<PageLoader />}>
+          <Routes location={location} key={location.pathname}>
+            {/* Public Routes */}
+            <Route path="/" element={<Landing />} />
+            <Route path="/auth/login" element={<Login />} />
+            <Route path="/auth/register" element={<Register />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/payment/success" element={<PaymentSuccess />} />
+            <Route path="/payment/fail" element={<PaymentFail />} />
 
           {/* Protected Routes */}
           <Route
@@ -155,8 +160,9 @@ function AppContent() {
 
           {/* 404 */}
           <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </Suspense>
+          </Routes>
+        </Suspense>
+      </AnimatePresence>
     </div>
   );
 }

@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
+import { PageTransition } from '../components/common/PageTransition';
+import { useCountUp } from '../hooks/useCountUp';
+import { staggerContainerVariants, staggerItemVariants } from '../utils/animations';
 import {
   DollarSign,
   TrendingUp,
@@ -56,6 +60,13 @@ export const TutorDashboard = () => {
     return <DashboardSkeleton />;
   }
 
+  // Number counter animations
+  const animatedEarnings = useCountUp(stats.monthlyEarnings || 0, 1500);
+  const animatedStudents = useCountUp(stats.totalStudents || 0, 1500);
+  const animatedClasses = useCountUp(stats.completedClasses || 0, 1500);
+  const animatedRating = useCountUp(Math.floor((stats.averageRating || 0) * 10), 1500);
+  const animatedUpcoming = useCountUp(stats.upcomingClasses || 0, 1500);
+
   const earningsData = {
     labels: ['1주', '2주', '3주', '4주'],
     datasets: [
@@ -92,61 +103,77 @@ export const TutorDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">튜터 대시보드</h1>
-          <p className="text-gray-600">수업 관리 및 수익 현황</p>
-        </div>
+    <PageTransition>
+      <div className="min-h-screen bg-bg-base py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-text-primary mb-2">튜터 대시보드</h1>
+            <p className="text-text-secondary">수업 관리 및 수익 현황</p>
+          </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-          <Card>
-            <div className="flex items-center gap-3 mb-2">
-              <DollarSign className="text-primary-500" size={20} />
-              <span className="text-sm text-gray-600">이번 달 수익</span>
-            </div>
-            <div className="text-2xl font-bold">₩{stats.monthlyEarnings.toLocaleString()}</div>
-            <div className="text-xs text-secondary-500 mt-1">↑ 지난달 대비 +12%</div>
-          </Card>
+          {/* Stats */}
+          <motion.div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8"
+            variants={staggerContainerVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <motion.div variants={staggerItemVariants}>
+              <Card>
+                <div className="flex items-center gap-3 mb-2">
+                  <DollarSign className="text-primary" size={20} />
+                  <span className="text-sm text-text-secondary">이번 달 수익</span>
+                </div>
+                <div className="text-2xl font-bold text-text-primary">₩{animatedEarnings.toLocaleString()}</div>
+                <div className="text-xs text-secondary mt-1">↑ 지난달 대비 +12%</div>
+              </Card>
+            </motion.div>
 
-          <Card>
-            <div className="flex items-center gap-3 mb-2">
-              <Users className="text-secondary-500" size={20} />
-              <span className="text-sm text-gray-600">총 학생 수</span>
-            </div>
-            <div className="text-2xl font-bold">{stats.totalStudents}명</div>
-            <div className="text-xs text-gray-500 mt-1">활성 학생</div>
-          </Card>
+            <motion.div variants={staggerItemVariants}>
+              <Card>
+                <div className="flex items-center gap-3 mb-2">
+                  <Users className="text-secondary" size={20} />
+                  <span className="text-sm text-text-secondary">총 학생 수</span>
+                </div>
+                <div className="text-2xl font-bold text-text-primary">{animatedStudents}명</div>
+                <div className="text-xs text-text-secondary mt-1">활성 학생</div>
+              </Card>
+            </motion.div>
 
-          <Card>
-            <div className="flex items-center gap-3 mb-2">
-              <BookOpen className="text-accent-500" size={20} />
-              <span className="text-sm text-gray-600">완료한 수업</span>
-            </div>
-            <div className="text-2xl font-bold">{stats.completedClasses}회</div>
-            <div className="text-xs text-gray-500 mt-1">이번 달</div>
-          </Card>
+            <motion.div variants={staggerItemVariants}>
+              <Card>
+                <div className="flex items-center gap-3 mb-2">
+                  <BookOpen className="text-accent" size={20} />
+                  <span className="text-sm text-text-secondary">완료한 수업</span>
+                </div>
+                <div className="text-2xl font-bold text-text-primary">{animatedClasses}회</div>
+                <div className="text-xs text-text-secondary mt-1">이번 달</div>
+              </Card>
+            </motion.div>
 
-          <Card>
-            <div className="flex items-center gap-3 mb-2">
-              <Star className="text-yellow-500" size={20} />
-              <span className="text-sm text-gray-600">평균 평점</span>
-            </div>
-            <div className="text-2xl font-bold">{stats.averageRating}</div>
-            <div className="text-xs text-gray-500 mt-1">5.0 만점</div>
-          </Card>
+            <motion.div variants={staggerItemVariants}>
+              <Card>
+                <div className="flex items-center gap-3 mb-2">
+                  <Star className="text-yellow-500 dark:text-yellow-400" size={20} />
+                  <span className="text-sm text-text-secondary">평균 평점</span>
+                </div>
+                <div className="text-2xl font-bold text-text-primary">{(animatedRating / 10).toFixed(1)}</div>
+                <div className="text-xs text-text-secondary mt-1">5.0 만점</div>
+              </Card>
+            </motion.div>
 
-          <Card>
-            <div className="flex items-center gap-3 mb-2">
-              <Calendar className="text-purple-500" size={20} />
-              <span className="text-sm text-gray-600">예정된 수업</span>
-            </div>
-            <div className="text-2xl font-bold">{stats.upcomingClasses}회</div>
-            <div className="text-xs text-gray-500 mt-1">이번 주</div>
-          </Card>
-        </div>
+            <motion.div variants={staggerItemVariants}>
+              <Card>
+                <div className="flex items-center gap-3 mb-2">
+                  <Calendar className="text-purple-500 dark:text-purple-400" size={20} />
+                  <span className="text-sm text-text-secondary">예정된 수업</span>
+                </div>
+                <div className="text-2xl font-bold text-text-primary">{animatedUpcoming}회</div>
+                <div className="text-xs text-text-secondary mt-1">이번 주</div>
+              </Card>
+            </motion.div>
+          </motion.div>
 
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
@@ -155,7 +182,7 @@ export const TutorDashboard = () => {
             <Card>
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold">주간 수익 추이</h2>
-                <TrendingUp className="text-primary-500" size={24} />
+                <TrendingUp className="text-primary" size={24} />
               </div>
               <div className="h-64">
                 <Line data={earningsData} options={chartOptions} />
@@ -167,22 +194,22 @@ export const TutorDashboard = () => {
               <h2 className="text-xl font-bold mb-4">다가오는 수업</h2>
               <div className="space-y-3">
                 {classes.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
+                  <div className="text-center py-8 text-text-tertiary">
                     예정된 수업이 없습니다.
                   </div>
                 ) : (
                   classes.slice(0, 5).map((classItem) => (
                     <div
                       key={classItem.id}
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      className="flex items-center justify-between p-4 bg-bg-subtle rounded-lg hover:bg-border-subtle transition-colors"
                     >
                       <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center">
-                          <BookOpen className="text-primary-500" size={24} />
+                          <BookOpen className="text-primary" size={24} />
                         </div>
                         <div>
                           <h3 className="font-bold">{classItem.subject}</h3>
-                          <p className="text-sm text-gray-600">
+                          <p className="text-sm text-text-secondary">
                             {new Date(classItem.scheduledAt).toLocaleString('ko-KR', {
                               month: 'short',
                               day: 'numeric',
@@ -194,7 +221,7 @@ export const TutorDashboard = () => {
                       </div>
                       <div className="flex items-center gap-3">
                         <div className="text-right">
-                          <div className="text-sm text-gray-600">수업 시간</div>
+                          <div className="text-sm text-text-secondary">수업 시간</div>
                           <div className="font-bold">{classItem.duration}분</div>
                         </div>
                         <Button variant="outline" size="sm">
@@ -229,12 +256,12 @@ export const TutorDashboard = () => {
                       />
                       <div>
                         <h3 className="font-bold">{student.name}</h3>
-                        <p className="text-sm text-gray-600">{student.subject}</p>
+                        <p className="text-sm text-text-secondary">{student.subject}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm text-gray-600">총 {student.sessions}회 수업</div>
-                      <div className="text-xs text-gray-500">마지막 수업: {student.lastClass}</div>
+                      <div className="text-sm text-text-secondary">총 {student.sessions}회 수업</div>
+                      <div className="text-xs text-text-tertiary">마지막 수업: {student.lastClass}</div>
                     </div>
                   </div>
                 ))}
@@ -268,15 +295,15 @@ export const TutorDashboard = () => {
               <h3 className="font-bold mb-4">이번 주 요약</h3>
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">예정된 수업</span>
-                  <span className="font-bold text-primary-500">8회</span>
+                  <span className="text-sm text-text-secondary">예정된 수업</span>
+                  <span className="font-bold text-primary">8회</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">예상 수익</span>
-                  <span className="font-bold text-secondary-500">₩640,000</span>
+                  <span className="text-sm text-text-secondary">예상 수익</span>
+                  <span className="font-bold text-secondary">₩640,000</span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">총 수업 시간</span>
+                  <span className="text-sm text-text-secondary">총 수업 시간</span>
                   <span className="font-bold">480분</span>
                 </div>
               </div>
@@ -300,7 +327,7 @@ export const TutorDashboard = () => {
                     date: '5일 전',
                   },
                 ].map((review, index) => (
-                  <div key={index} className="p-3 bg-gray-50 rounded-lg">
+                  <div key={index} className="p-3 bg-bg-subtle rounded-lg">
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-medium text-sm">{review.student}</span>
                       <div className="flex">
@@ -309,8 +336,8 @@ export const TutorDashboard = () => {
                         ))}
                       </div>
                     </div>
-                    <p className="text-xs text-gray-600 mb-1">{review.comment}</p>
-                    <span className="text-xs text-gray-500">{review.date}</span>
+                    <p className="text-xs text-text-secondary mb-1">{review.comment}</p>
+                    <span className="text-xs text-text-tertiary">{review.date}</span>
                   </div>
                 ))}
               </div>
@@ -319,21 +346,21 @@ export const TutorDashboard = () => {
             {/* Availability */}
             <Card>
               <h3 className="font-bold mb-4 flex items-center gap-2">
-                <Clock className="text-primary-500" size={20} />
+                <Clock className="text-primary" size={20} />
                 수업 가능 시간
               </h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">월요일</span>
-                  <span className="font-medium">18:00 - 22:00</span>
+                  <span className="text-text-secondary">월요일</span>
+                  <span className="font-medium text-text-primary">18:00 - 22:00</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">수요일</span>
-                  <span className="font-medium">18:00 - 22:00</span>
+                  <span className="text-text-secondary">수요일</span>
+                  <span className="font-medium text-text-primary">18:00 - 22:00</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">금요일</span>
-                  <span className="font-medium">18:00 - 22:00</span>
+                  <span className="text-text-secondary">금요일</span>
+                  <span className="font-medium text-text-primary">18:00 - 22:00</span>
                 </div>
               </div>
               <Button variant="outline" size="sm" fullWidth className="mt-4">
@@ -342,7 +369,8 @@ export const TutorDashboard = () => {
             </Card>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+    </PageTransition>
   );
 };

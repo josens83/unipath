@@ -160,3 +160,15 @@ export interface Payment {
   status: 'pending' | 'completed' | 'failed';
   createdAt: string;
 }
+
+// Notification Types
+export interface Notification {
+  id: string;
+  userId: string;
+  type: 'class' | 'payment' | 'message' | 'announcement' | 'system';
+  title: string;
+  message: string;
+  read: boolean;
+  link?: string;
+  createdAt: string;
+}

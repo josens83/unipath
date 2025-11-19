@@ -1,6 +1,9 @@
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
+import { PageTransition } from '../components/common/PageTransition';
+import { staggerContainerVariants, staggerItemVariants } from '../utils/animations';
 import {
   ChevronLeft,
   ChevronRight,
@@ -94,56 +97,61 @@ export const Schedule = () => {
   const getEventColor = (type: string) => {
     switch (type) {
       case 'scheduled':
-        return 'bg-primary-100 border-primary-500 text-primary-700';
+        return 'bg-primary-light dark:bg-primary-subtle border-primary text-primary';
       case 'completed':
-        return 'bg-green-100 border-green-500 text-green-700';
+        return 'bg-green-100 dark:bg-green-900/30 border-green-600 dark:border-green-400 text-green-700 dark:text-green-400';
       case 'cancelled':
-        return 'bg-red-100 border-red-500 text-red-700';
+        return 'bg-red-100 dark:bg-red-900/30 border-red-600 dark:border-red-400 text-red-700 dark:text-red-400';
       default:
-        return 'bg-gray-100 border-gray-500 text-gray-700';
+        return 'bg-bg-subtle border-border text-text-secondary';
     }
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">수업 일정</h1>
-            <p className="text-gray-600">예정된 수업을 확인하고 관리하세요</p>
+    <PageTransition>
+      <div className="min-h-screen bg-bg-base py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h1 className="text-3xl font-bold text-text-primary mb-2">수업 일정</h1>
+              <p className="text-text-secondary">예정된 수업을 확인하고 관리하세요</p>
+            </div>
+            <Button variant="primary" className="flex items-center gap-2">
+              <Plus size={20} />
+              새 수업 예약
+            </Button>
           </div>
-          <Button variant="primary" className="flex items-center gap-2">
-            <Plus size={20} />
-            새 수업 예약
-          </Button>
-        </div>
 
         {/* Controls */}
-        <Card className="mb-6">
+        <Card className="mb-6" animate delay={0.1}>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button
+              <motion.button
                 onClick={() => navigateWeek('prev')}
-                className="p-2 hover:bg-gray-100 rounded-lg"
+                className="p-2 hover:bg-bg-subtle rounded-lg text-text-primary transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <ChevronLeft size={20} />
-              </button>
+              </motion.button>
               <div className="flex items-center gap-2">
-                <CalendarIcon className="text-primary-500" size={20} />
-                <span className="text-lg font-bold">
+                <CalendarIcon className="text-primary" size={20} />
+                <span className="text-lg font-bold text-text-primary">
                   {currentDate.toLocaleDateString('ko-KR', {
                     year: 'numeric',
                     month: 'long',
                   })}
                 </span>
               </div>
-              <button
+              <motion.button
                 onClick={() => navigateWeek('next')}
-                className="p-2 hover:bg-gray-100 rounded-lg"
+                className="p-2 hover:bg-bg-subtle rounded-lg text-text-primary transition-colors"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
               >
                 <ChevronRight size={20} />
-              </button>
+              </motion.button>
               <Button
                 variant="outline"
                 size="sm"
@@ -154,26 +162,28 @@ export const Schedule = () => {
             </div>
 
             <div className="flex gap-2">
-              <button
+              <motion.button
                 onClick={() => setView('week')}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   view === 'week'
-                    ? 'bg-primary-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-primary text-white'
+                    : 'bg-bg-subtle text-text-secondary hover:bg-border-subtle'
                 }`}
+                whileTap={{ scale: 0.95 }}
               >
                 주간
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 onClick={() => setView('month')}
                 className={`px-4 py-2 rounded-lg font-medium transition-colors ${
                   view === 'month'
-                    ? 'bg-primary-500 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    ? 'bg-primary text-white'
+                    : 'bg-bg-subtle text-text-secondary hover:bg-border-subtle'
                 }`}
+                whileTap={{ scale: 0.95 }}
               >
                 월간
-              </button>
+              </motion.button>
             </div>
           </div>
         </Card>
@@ -181,25 +191,25 @@ export const Schedule = () => {
         <div className="grid lg:grid-cols-4 gap-6">
           {/* Calendar */}
           <div className="lg:col-span-3">
-            <Card padding="none" className="overflow-hidden">
+            <Card padding="none" className="overflow-hidden" animate delay={0.2}>
               {/* Week Header */}
-              <div className="grid grid-cols-8 border-b">
-                <div className="p-4 border-r bg-gray-50">
-                  <Clock size={20} className="text-gray-400" />
+              <div className="grid grid-cols-8 border-b border-border">
+                <div className="p-4 border-r border-border bg-bg-subtle">
+                  <Clock size={20} className="text-text-quaternary" />
                 </div>
                 {weekDates.map((date, index) => {
                   const isToday = date.toDateString() === new Date().toDateString();
                   return (
                     <div
                       key={index}
-                      className={`p-4 text-center border-r ${
-                        isToday ? 'bg-primary-50' : 'bg-gray-50'
+                      className={`p-4 text-center border-r border-border ${
+                        isToday ? 'bg-primary-light dark:bg-primary-subtle' : 'bg-bg-subtle'
                       }`}
                     >
-                      <div className="text-xs text-gray-600">{daysOfWeek[date.getDay()]}</div>
+                      <div className="text-xs text-text-tertiary">{daysOfWeek[date.getDay()]}</div>
                       <div
                         className={`text-lg font-bold mt-1 ${
-                          isToday ? 'text-primary-500' : ''
+                          isToday ? 'text-primary' : 'text-text-primary'
                         }`}
                       >
                         {date.getDate()}
@@ -212,9 +222,9 @@ export const Schedule = () => {
               {/* Time Slots */}
               <div className="overflow-y-auto max-h-[600px]">
                 {timeSlots.map((hour) => (
-                  <div key={hour} className="grid grid-cols-8 border-b min-h-[80px]">
-                    <div className="p-2 border-r bg-gray-50 text-center">
-                      <span className="text-sm font-medium text-gray-600">
+                  <div key={hour} className="grid grid-cols-8 border-b border-border min-h-[80px]">
+                    <div className="p-2 border-r border-border bg-bg-subtle text-center">
+                      <span className="text-sm font-medium text-text-tertiary">
                         {hour}:00
                       </span>
                     </div>
@@ -223,13 +233,16 @@ export const Schedule = () => {
                       return (
                         <div
                           key={dayIndex}
-                          className="border-r p-1 hover:bg-gray-50 cursor-pointer"
+                          className="border-r border-border p-1 hover:bg-bg-subtle cursor-pointer transition-colors"
                         >
                           {event && (
-                            <div
+                            <motion.div
                               className={`h-full p-2 rounded-lg border-l-4 ${getEventColor(
                                 event.type
                               )}`}
+                              initial={{ opacity: 0, scale: 0.9 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              whileHover={{ scale: 1.02 }}
                             >
                               <div className="font-bold text-sm mb-1">{event.title}</div>
                               <div className="text-xs">{event.subject}</div>
@@ -240,7 +253,7 @@ export const Schedule = () => {
                               <div className="text-xs mt-1">
                                 {event.startTime} - {event.endTime}
                               </div>
-                            </div>
+                            </motion.div>
                           )}
                         </div>
                       );
@@ -252,86 +265,99 @@ export const Schedule = () => {
           </div>
 
           {/* Sidebar */}
-          <div className="space-y-6">
+          <motion.div
+            className="space-y-6"
+            variants={staggerContainerVariants}
+            initial="hidden"
+            animate="visible"
+          >
             {/* Upcoming Classes */}
-            <Card>
-              <h3 className="font-bold mb-4">다가오는 수업</h3>
-              <div className="space-y-3">
-                {mockEvents
-                  .filter((e) => e.type === 'scheduled')
-                  .slice(0, 3)
-                  .map((event) => (
-                    <div
-                      key={event.id}
-                      className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer"
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <BookOpen className="text-primary-500" size={20} />
+            <motion.div variants={staggerItemVariants}>
+              <Card>
+                <h3 className="font-bold text-text-primary mb-4">다가오는 수업</h3>
+                <div className="space-y-3">
+                  {mockEvents
+                    .filter((e) => e.type === 'scheduled')
+                    .slice(0, 3)
+                    .map((event) => (
+                      <motion.div
+                        key={event.id}
+                        className="p-3 bg-bg-subtle rounded-lg hover:bg-border-subtle cursor-pointer transition-colors border border-border"
+                        whileHover={{ x: 4 }}
+                      >
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 bg-primary-light dark:bg-primary-subtle rounded-lg flex items-center justify-center flex-shrink-0">
+                            <BookOpen className="text-primary" size={20} />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium text-sm text-text-primary">{event.title}</h4>
+                            <p className="text-xs text-text-tertiary mt-1">
+                              {new Date(event.date).toLocaleDateString('ko-KR', {
+                                month: 'short',
+                                day: 'numeric',
+                              })}{' '}
+                              {event.startTime}
+                            </p>
+                            <p className="text-xs text-text-quaternary">{event.tutorName}</p>
+                          </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-medium text-sm">{event.title}</h4>
-                          <p className="text-xs text-gray-600 mt-1">
-                            {new Date(event.date).toLocaleDateString('ko-KR', {
-                              month: 'short',
-                              day: 'numeric',
-                            })}{' '}
-                            {event.startTime}
-                          </p>
-                          <p className="text-xs text-gray-500">{event.tutorName}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </Card>
+                      </motion.div>
+                    ))}
+                </div>
+              </Card>
+            </motion.div>
 
             {/* Stats */}
-            <Card>
-              <h3 className="font-bold mb-4">이번 주 통계</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">예정된 수업</span>
-                  <span className="font-bold text-primary-500">
-                    {mockEvents.filter((e) => e.type === 'scheduled').length}회
-                  </span>
+            <motion.div variants={staggerItemVariants}>
+              <Card>
+                <h3 className="font-bold text-text-primary mb-4">이번 주 통계</h3>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-text-secondary">예정된 수업</span>
+                    <span className="font-bold text-primary">
+                      {mockEvents.filter((e) => e.type === 'scheduled').length}회
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-text-secondary">완료한 수업</span>
+                    <span className="font-bold text-secondary">
+                      {mockEvents.filter((e) => e.type === 'completed').length}회
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-text-secondary">총 학습 시간</span>
+                    <span className="font-bold text-text-primary">
+                      {mockEvents.filter((e) => e.type === 'completed').length * 60}분
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">완료한 수업</span>
-                  <span className="font-bold text-secondary-500">
-                    {mockEvents.filter((e) => e.type === 'completed').length}회
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">총 학습 시간</span>
-                  <span className="font-bold">
-                    {mockEvents.filter((e) => e.type === 'completed').length * 60}분
-                  </span>
-                </div>
-              </div>
-            </Card>
+              </Card>
+            </motion.div>
 
             {/* Legend */}
-            <Card>
-              <h3 className="font-bold mb-4">범례</h3>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-primary-500 rounded" />
-                  <span className="text-sm">예정된 수업</span>
+            <motion.div variants={staggerItemVariants}>
+              <Card>
+                <h3 className="font-bold text-text-primary mb-4">범례</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-primary rounded" />
+                    <span className="text-sm text-text-secondary">예정된 수업</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-green-600 dark:bg-green-400 rounded" />
+                    <span className="text-sm text-text-secondary">완료된 수업</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-red-600 dark:bg-red-400 rounded" />
+                    <span className="text-sm text-text-secondary">취소된 수업</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-green-500 rounded" />
-                  <span className="text-sm">완료된 수업</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-red-500 rounded" />
-                  <span className="text-sm">취소된 수업</span>
-                </div>
-              </div>
-            </Card>
-          </div>
+              </Card>
+            </motion.div>
+          </motion.div>
+        </div>
         </div>
       </div>
-    </div>
+    </PageTransition>
   );
 };

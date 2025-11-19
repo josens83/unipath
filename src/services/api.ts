@@ -3,6 +3,7 @@ import type {
   Post, Comment, Class,
   AIAnalysisResult, Payment, Subscription, PlanType
 } from '../types';
+import { storage } from '../utils/helpers';
 
 // LocalStorage Keys
 const STORAGE_KEYS = {
@@ -17,28 +18,9 @@ const STORAGE_KEYS = {
 // Utility: Delay for realistic API simulation
 const delay = (ms: number = 500) => new Promise(resolve => setTimeout(resolve, ms));
 
-// Utility: Get from LocalStorage
-const getStorage = <T>(key: string, defaultValue: T): T => {
-  try {
-    const item = localStorage.getItem(key);
-    return item ? JSON.parse(item) : defaultValue;
-  } catch {
-    return defaultValue;
-  }
-};
-
-// Utility: Set to LocalStorage
-const setStorage = <T>(key: string, value: T): void => {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch (error) {
-    console.error('Storage error:', error);
-  }
-};
-
 // Initialize Mock Data
 const initializeMockData = () => {
-  const users = getStorage<User[]>(STORAGE_KEYS.USERS, []);
+  const users = storage.get<User[]>(STORAGE_KEYS.USERS, []);
 
   if (users.length === 0) {
     const mockUsers: User[] = [
@@ -72,7 +54,7 @@ const initializeMockData = () => {
       },
     ];
 
-    setStorage(STORAGE_KEYS.USERS, mockUsers);
+    storage.set(STORAGE_KEYS.USERS, mockUsers);
   }
 };
 
@@ -85,14 +67,14 @@ export const authAPI = {
   async login(email: string, password: string): Promise<User> {
     await delay();
 
-    const users = getStorage<User[]>(STORAGE_KEYS.USERS, []);
+    const users = storage.get<User[]>(STORAGE_KEYS.USERS, []);
     const user = users.find(u => u.email === email);
 
     if (!user || password.length < 6) {
       throw new Error('이메일 또는 비밀번호가 올바르지 않습니다.');
     }
 
-    setStorage(STORAGE_KEYS.CURRENT_USER, user);
+    storage.set(STORAGE_KEYS.CURRENT_USER, user);
     return user;
   },
 
@@ -105,7 +87,7 @@ export const authAPI = {
   }): Promise<User> {
     await delay();
 
-    const users = getStorage<User[]>(STORAGE_KEYS.USERS, []);
+    const users = storage.get<User[]>(STORAGE_KEYS.USERS, []);
 
     if (users.some(u => u.email === data.email)) {
       throw new Error('이미 등록된 이메일입니다.');
@@ -121,25 +103,25 @@ export const authAPI = {
     };
 
     users.push(newUser);
-    setStorage(STORAGE_KEYS.USERS, users);
-    setStorage(STORAGE_KEYS.CURRENT_USER, newUser);
+    storage.set(STORAGE_KEYS.USERS, users);
+    storage.set(STORAGE_KEYS.CURRENT_USER, newUser);
 
     return newUser;
   },
 
   async logout(): Promise<void> {
     await delay(200);
-    localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+    storage.remove(STORAGE_KEYS.CURRENT_USER);
   },
 
   getCurrentUser(): User | null {
-    return getStorage<User | null>(STORAGE_KEYS.CURRENT_USER, null);
+    return storage.get<User | null>(STORAGE_KEYS.CURRENT_USER, null);
   },
 
   async updateProfile(userId: string, data: Partial<User>): Promise<User> {
     await delay();
 
-    const users = getStorage<User[]>(STORAGE_KEYS.USERS, []);
+    const users = storage.get<User[]>(STORAGE_KEYS.USERS, []);
     const index = users.findIndex(u => u.id === userId);
 
     if (index === -1) {
@@ -147,11 +129,11 @@ export const authAPI = {
     }
 
     users[index] = { ...users[index], ...data };
-    setStorage(STORAGE_KEYS.USERS, users);
+    storage.set(STORAGE_KEYS.USERS, users);
 
-    const currentUser = getStorage<User | null>(STORAGE_KEYS.CURRENT_USER, null);
+    const currentUser = storage.get<User | null>(STORAGE_KEYS.CURRENT_USER, null);
     if (currentUser?.id === userId) {
-      setStorage(STORAGE_KEYS.CURRENT_USER, users[index]);
+      storage.set(STORAGE_KEYS.CURRENT_USER, users[index]);
     }
 
     return users[index];
@@ -164,23 +146,23 @@ export const userAPI = {
   async getUsers(role?: string): Promise<User[]> {
     await delay();
 
-    const users = getStorage<User[]>(STORAGE_KEYS.USERS, []);
+    const users = storage.get<User[]>(STORAGE_KEYS.USERS, []);
     return role ? users.filter(u => u.role === role) : users;
   },
 
   async getUser(userId: string): Promise<User | null> {
     await delay();
 
-    const users = getStorage<User[]>(STORAGE_KEYS.USERS, []);
+    const users = storage.get<User[]>(STORAGE_KEYS.USERS, []);
     return users.find(u => u.id === userId) || null;
   },
 
   async deleteUser(userId: string): Promise<void> {
     await delay();
 
-    const users = getStorage<User[]>(STORAGE_KEYS.USERS, []);
+    const users = storage.get<User[]>(STORAGE_KEYS.USERS, []);
     const filtered = users.filter(u => u.id !== userId);
-    setStorage(STORAGE_KEYS.USERS, filtered);
+    storage.set(STORAGE_KEYS.USERS, filtered);
   },
 };
 
@@ -190,21 +172,21 @@ export const postAPI = {
   async getPosts(category?: string): Promise<Post[]> {
     await delay();
 
-    const posts = getStorage<Post[]>(STORAGE_KEYS.POSTS, []);
+    const posts = storage.get<Post[]>(STORAGE_KEYS.POSTS, []);
     return category ? posts.filter(p => p.category === category) : posts;
   },
 
   async getPost(postId: string): Promise<Post | null> {
     await delay();
 
-    const posts = getStorage<Post[]>(STORAGE_KEYS.POSTS, []);
+    const posts = storage.get<Post[]>(STORAGE_KEYS.POSTS, []);
     return posts.find(p => p.id === postId) || null;
   },
 
   async createPost(data: Omit<Post, 'id' | 'views' | 'likes' | 'comments' | 'createdAt' | 'updatedAt'>): Promise<Post> {
     await delay();
 
-    const posts = getStorage<Post[]>(STORAGE_KEYS.POSTS, []);
+    const posts = storage.get<Post[]>(STORAGE_KEYS.POSTS, []);
 
     const newPost: Post = {
       ...data,
@@ -217,7 +199,7 @@ export const postAPI = {
     };
 
     posts.unshift(newPost);
-    setStorage(STORAGE_KEYS.POSTS, posts);
+    storage.set(STORAGE_KEYS.POSTS, posts);
 
     return newPost;
   },
@@ -225,7 +207,7 @@ export const postAPI = {
   async updatePost(postId: string, data: Partial<Post>): Promise<Post> {
     await delay();
 
-    const posts = getStorage<Post[]>(STORAGE_KEYS.POSTS, []);
+    const posts = storage.get<Post[]>(STORAGE_KEYS.POSTS, []);
     const index = posts.findIndex(p => p.id === postId);
 
     if (index === -1) {
@@ -237,7 +219,7 @@ export const postAPI = {
       ...data,
       updatedAt: new Date().toISOString()
     };
-    setStorage(STORAGE_KEYS.POSTS, posts);
+    storage.set(STORAGE_KEYS.POSTS, posts);
 
     return posts[index];
   },
@@ -245,15 +227,15 @@ export const postAPI = {
   async deletePost(postId: string): Promise<void> {
     await delay();
 
-    const posts = getStorage<Post[]>(STORAGE_KEYS.POSTS, []);
+    const posts = storage.get<Post[]>(STORAGE_KEYS.POSTS, []);
     const filtered = posts.filter(p => p.id !== postId);
-    setStorage(STORAGE_KEYS.POSTS, filtered);
+    storage.set(STORAGE_KEYS.POSTS, filtered);
   },
 
   async addComment(postId: string, comment: Omit<Comment, 'id' | 'createdAt'>): Promise<Comment> {
     await delay();
 
-    const posts = getStorage<Post[]>(STORAGE_KEYS.POSTS, []);
+    const posts = storage.get<Post[]>(STORAGE_KEYS.POSTS, []);
     const post = posts.find(p => p.id === postId);
 
     if (!post) {
@@ -267,7 +249,7 @@ export const postAPI = {
     };
 
     post.comments.push(newComment);
-    setStorage(STORAGE_KEYS.POSTS, posts);
+    storage.set(STORAGE_KEYS.POSTS, posts);
 
     return newComment;
   },
@@ -279,7 +261,7 @@ export const classAPI = {
   async getClasses(userId?: string, role?: string): Promise<Class[]> {
     await delay();
 
-    const classes = getStorage<Class[]>(STORAGE_KEYS.CLASSES, []);
+    const classes = storage.get<Class[]>(STORAGE_KEYS.CLASSES, []);
 
     if (!userId) return classes;
 
@@ -296,7 +278,7 @@ export const classAPI = {
   async createClass(data: Omit<Class, 'id'>): Promise<Class> {
     await delay();
 
-    const classes = getStorage<Class[]>(STORAGE_KEYS.CLASSES, []);
+    const classes = storage.get<Class[]>(STORAGE_KEYS.CLASSES, []);
 
     const newClass: Class = {
       ...data,
@@ -304,7 +286,7 @@ export const classAPI = {
     };
 
     classes.push(newClass);
-    setStorage(STORAGE_KEYS.CLASSES, classes);
+    storage.set(STORAGE_KEYS.CLASSES, classes);
 
     return newClass;
   },
@@ -312,7 +294,7 @@ export const classAPI = {
   async updateClass(classId: string, data: Partial<Class>): Promise<Class> {
     await delay();
 
-    const classes = getStorage<Class[]>(STORAGE_KEYS.CLASSES, []);
+    const classes = storage.get<Class[]>(STORAGE_KEYS.CLASSES, []);
     const index = classes.findIndex(c => c.id === classId);
 
     if (index === -1) {
@@ -320,7 +302,7 @@ export const classAPI = {
     }
 
     classes[index] = { ...classes[index], ...data };
-    setStorage(STORAGE_KEYS.CLASSES, classes);
+    storage.set(STORAGE_KEYS.CLASSES, classes);
 
     return classes[index];
   },
@@ -328,9 +310,9 @@ export const classAPI = {
   async deleteClass(classId: string): Promise<void> {
     await delay();
 
-    const classes = getStorage<Class[]>(STORAGE_KEYS.CLASSES, []);
+    const classes = storage.get<Class[]>(STORAGE_KEYS.CLASSES, []);
     const filtered = classes.filter(c => c.id !== classId);
-    setStorage(STORAGE_KEYS.CLASSES, filtered);
+    storage.set(STORAGE_KEYS.CLASSES, filtered);
   },
 };
 
@@ -340,7 +322,7 @@ export const tutorAPI = {
   async getTutors(filters?: { subject?: string; minRating?: number }): Promise<Tutor[]> {
     await delay();
 
-    const users = getStorage<User[]>(STORAGE_KEYS.USERS, []);
+    const users = storage.get<User[]>(STORAGE_KEYS.USERS, []);
     let tutors = users.filter(u => u.role === 'tutor') as Tutor[];
 
     if (filters?.subject) {
@@ -361,7 +343,7 @@ export const tutorAPI = {
   async getTutor(tutorId: string): Promise<Tutor | null> {
     await delay();
 
-    const users = getStorage<User[]>(STORAGE_KEYS.USERS, []);
+    const users = storage.get<User[]>(STORAGE_KEYS.USERS, []);
     const tutor = users.find(u => u.id === tutorId && u.role === 'tutor');
 
     return tutor as Tutor || null;
@@ -446,7 +428,7 @@ export const paymentAPI = {
   }): Promise<Payment> {
     await delay(1000);
 
-    const payments = getStorage<Payment[]>(STORAGE_KEYS.PAYMENTS, []);
+    const payments = storage.get<Payment[]>(STORAGE_KEYS.PAYMENTS, []);
 
     const newPayment: Payment = {
       id: `payment-${Date.now()}`,
@@ -459,10 +441,10 @@ export const paymentAPI = {
     };
 
     payments.push(newPayment);
-    setStorage(STORAGE_KEYS.PAYMENTS, payments);
+    storage.set(STORAGE_KEYS.PAYMENTS, payments);
 
     // Create subscription
-    const subscriptions = getStorage<Subscription[]>(STORAGE_KEYS.SUBSCRIPTIONS, []);
+    const subscriptions = storage.get<Subscription[]>(STORAGE_KEYS.SUBSCRIPTIONS, []);
 
     const newSubscription: Subscription = {
       userId: data.userId,
@@ -474,7 +456,7 @@ export const paymentAPI = {
     };
 
     subscriptions.push(newSubscription);
-    setStorage(STORAGE_KEYS.SUBSCRIPTIONS, subscriptions);
+    storage.set(STORAGE_KEYS.SUBSCRIPTIONS, subscriptions);
 
     return newPayment;
   },
@@ -482,27 +464,27 @@ export const paymentAPI = {
   async getPayments(userId: string): Promise<Payment[]> {
     await delay();
 
-    const payments = getStorage<Payment[]>(STORAGE_KEYS.PAYMENTS, []);
+    const payments = storage.get<Payment[]>(STORAGE_KEYS.PAYMENTS, []);
     return payments.filter(p => p.userId === userId);
   },
 
   async getSubscription(userId: string): Promise<Subscription | null> {
     await delay();
 
-    const subscriptions = getStorage<Subscription[]>(STORAGE_KEYS.SUBSCRIPTIONS, []);
+    const subscriptions = storage.get<Subscription[]>(STORAGE_KEYS.SUBSCRIPTIONS, []);
     return subscriptions.find(s => s.userId === userId && s.status === 'active') || null;
   },
 
   async cancelSubscription(userId: string): Promise<void> {
     await delay();
 
-    const subscriptions = getStorage<Subscription[]>(STORAGE_KEYS.SUBSCRIPTIONS, []);
+    const subscriptions = storage.get<Subscription[]>(STORAGE_KEYS.SUBSCRIPTIONS, []);
     const subscription = subscriptions.find(s => s.userId === userId && s.status === 'active');
 
     if (subscription) {
       subscription.status = 'cancelled';
       subscription.autoRenew = false;
-      setStorage(STORAGE_KEYS.SUBSCRIPTIONS, subscriptions);
+      storage.set(STORAGE_KEYS.SUBSCRIPTIONS, subscriptions);
     }
   },
 };
@@ -515,17 +497,17 @@ export const dashboardAPI = {
 
     if (role === 'admin') {
       return {
-        totalUsers: getStorage<User[]>(STORAGE_KEYS.USERS, []).length,
-        activeUsers: Math.floor(getStorage<User[]>(STORAGE_KEYS.USERS, []).length * 0.85),
+        totalUsers: storage.get<User[]>(STORAGE_KEYS.USERS, []).length,
+        activeUsers: Math.floor(storage.get<User[]>(STORAGE_KEYS.USERS, []).length * 0.85),
         totalRevenue: 45780000,
         monthlyRevenue: 8950000,
-        totalClasses: getStorage<Class[]>(STORAGE_KEYS.CLASSES, []).length,
-        activeTutors: getStorage<User[]>(STORAGE_KEYS.USERS, []).filter(u => u.role === 'tutor').length,
+        totalClasses: storage.get<Class[]>(STORAGE_KEYS.CLASSES, []).length,
+        activeTutors: storage.get<User[]>(STORAGE_KEYS.USERS, []).filter(u => u.role === 'tutor').length,
       };
     }
 
     if (role === 'student') {
-      const classes = getStorage<Class[]>(STORAGE_KEYS.CLASSES, []).filter(
+      const classes = storage.get<Class[]>(STORAGE_KEYS.CLASSES, []).filter(
         c => c.studentId === userId
       );
 
@@ -538,7 +520,7 @@ export const dashboardAPI = {
     }
 
     if (role === 'tutor') {
-      const classes = getStorage<Class[]>(STORAGE_KEYS.CLASSES, []).filter(
+      const classes = storage.get<Class[]>(STORAGE_KEYS.CLASSES, []).filter(
         c => c.tutorId === userId
       );
 

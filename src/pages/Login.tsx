@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from '../components/common/Button';
 import { Card } from '../components/common/Card';
+import { PageTransition } from '../components/common/PageTransition';
 import { loginSchema } from '../utils/validation';
 import type { LoginFormData } from '../utils/validation';
 
@@ -31,59 +32,60 @@ export const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4 py-12">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
+    <PageTransition>
+      <div className="min-h-screen flex items-center justify-center bg-bg-base px-4 py-12">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-lg" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">UniPath</h1>
-          <p className="text-gray-600 mt-2">로그인하여 시작하세요</p>
+          <h1 className="text-3xl font-bold text-text-primary">UniPath</h1>
+          <p className="text-text-secondary mt-2">로그인하여 시작하세요</p>
         </div>
 
         <Card>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="email" className="block text-sm font-medium text-text-primary mb-1">
                 이메일
               </label>
               <input
                 id="email"
                 type="email"
                 {...register('email')}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all ${
-                  errors.email ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-4 py-2 border rounded-lg bg-bg-base text-text-primary focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${
+                  errors.email ? 'border-red-500 dark:border-red-400' : 'border-border'
                 }`}
                 placeholder="example@email.com"
               />
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email.message}</p>
               )}
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium text-text-primary mb-1">
                 비밀번호
               </label>
               <input
                 id="password"
                 type="password"
                 {...register('password')}
-                className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all ${
-                  errors.password ? 'border-red-500' : 'border-gray-300'
+                className={`w-full px-4 py-2 border rounded-lg bg-bg-base text-text-primary focus:ring-2 focus:ring-primary focus:border-transparent transition-all ${
+                  errors.password ? 'border-red-500 dark:border-red-400' : 'border-border'
                 }`}
                 placeholder="••••••••"
               />
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password.message}</p>
               )}
             </div>
 
             <div className="pt-2 space-y-2">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-text-secondary">
                 <strong>테스트 계정:</strong>
               </p>
-              <div className="text-xs text-gray-500 space-y-1 bg-gray-50 p-3 rounded-lg">
+              <div className="text-xs text-text-secondary space-y-1 bg-bg-subtle p-3 rounded-lg border border-border-subtle">
                 <p>• 학생: student@test.com (비밀번호: 6자 이상)</p>
                 <p>• 학부모: parent@test.com (비밀번호: 6자 이상)</p>
                 <p>• 튜터: tutor@test.com (비밀번호: 6자 이상)</p>
@@ -100,9 +102,9 @@ export const Login = () => {
               {isSubmitting ? '로그인 중...' : '로그인'}
             </Button>
 
-            <div className="text-center text-sm text-gray-600">
+            <div className="text-center text-sm text-text-secondary">
               계정이 없으신가요?{' '}
-              <Link to="/auth/register" className="text-primary-500 hover:text-primary-600 font-medium">
+              <Link to="/auth/register" className="text-primary hover:text-primary-hover font-medium">
                 회원가입
               </Link>
             </div>
@@ -110,11 +112,12 @@ export const Login = () => {
         </Card>
 
         <div className="mt-6 text-center">
-          <Link to="/" className="text-sm text-gray-600 hover:text-gray-900">
+          <Link to="/" className="text-sm text-text-secondary hover:text-text-primary transition-colors">
             ← 홈으로 돌아가기
           </Link>
         </div>
+        </div>
       </div>
-    </div>
+    </PageTransition>
   );
 };

@@ -3,9 +3,145 @@
 @tailwind utilities;
 
 @layer base {
+  /* ✨ Design Token System - CSS Variables */
+  :root {
+    /* Background Colors (라이트 모드) */
+    --color-bg-base: 249 250 251;           /* gray-50 */
+    --color-bg-subtle: 243 244 246;         /* gray-100 */
+    --color-bg-surface: 255 255 255;        /* white */
+
+    /* Text Colors */
+    --color-text-primary: 17 24 39;         /* gray-900 */
+    --color-text-secondary: 75 85 99;       /* gray-600 */
+    --color-text-tertiary: 107 114 128;     /* gray-500 */
+    --color-text-quaternary: 156 163 175;   /* gray-400 */
+
+    /* Border Colors */
+    --color-border-subtle: 243 244 246;     /* gray-100 */
+    --color-border-DEFAULT: 229 231 235;    /* gray-200 */
+    --color-border-strong: 209 213 219;     /* gray-300 */
+
+    /* Primary Colors */
+    --color-primary: 79 70 229;             /* indigo-600 */
+    --color-primary-hover: 67 56 202;       /* indigo-700 */
+    --color-primary-light: 199 210 254;     /* indigo-200 */
+    --color-primary-subtle: 238 242 255;    /* indigo-50 */
+
+    /* Secondary Colors */
+    --color-secondary: 236 72 153;          /* pink-500 */
+    --color-secondary-hover: 219 39 119;    /* pink-600 */
+
+    /* Accent Colors */
+    --color-accent: 245 158 11;             /* amber-500 */
+    --color-accent-hover: 217 119 6;        /* amber-600 */
+
+    /* Spacing & Radius */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+    --radius-2xl: 1.5rem;
+    --radius-3xl: 1.75rem;
+
+    /* Shadows */
+    --shadow-subtle: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  }
+
+  .dark {
+    /* Background Colors (다크 모드) */
+    --color-bg-base: 10 10 10;              /* 거의 검정 */
+    --color-bg-subtle: 23 23 23;            /* gray-950 */
+    --color-bg-surface: 28 28 30;           /* 카드 배경 */
+
+    /* Text Colors */
+    --color-text-primary: 250 250 250;      /* gray-50 */
+    --color-text-secondary: 163 163 163;    /* gray-400 */
+    --color-text-tertiary: 115 115 115;     /* gray-500 */
+    --color-text-quaternary: 82 82 82;      /* gray-600 */
+
+    /* Border Colors */
+    --color-border-subtle: 38 38 38;        /* gray-800 */
+    --color-border-DEFAULT: 64 64 64;       /* gray-700 */
+    --color-border-strong: 82 82 82;        /* gray-600 */
+
+    /* Primary Colors (다크 모드에서는 더 밝게) */
+    --color-primary: 99 102 241;            /* indigo-500 */
+    --color-primary-hover: 129 140 248;     /* indigo-400 */
+    --color-primary-light: 79 70 229;       /* indigo-600 */
+    --color-primary-subtle: 49 46 129;      /* indigo-900 */
+
+    /* Secondary Colors */
+    --color-secondary: 244 114 182;         /* pink-400 */
+    --color-secondary-hover: 249 168 212;   /* pink-300 */
+
+    /* Accent Colors */
+    --color-accent: 251 191 36;             /* amber-400 */
+    --color-accent-hover: 252 211 77;       /* amber-300 */
+
+    /* Shadows (다크 모드용 - 더 진하게) */
+    --shadow-subtle: 0 1px 2px 0 rgb(0 0 0 / 0.2);
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.6);
+  }
+
+  /* Inter Variable Font 지원 */
+  @supports (font-variation-settings: normal) {
+    :root {
+      font-family: 'Inter var', Pretendard, sans-serif;
+    }
+  }
+
   body {
-    @apply bg-gray-50 text-gray-900;
-    font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Pretendard', 'Roboto', 'Noto Sans KR', 'Segoe UI', 'Malgun Gothic', sans-serif;
+    @apply bg-bg-base text-text-primary;
+
+    /* OpenType 기능 활성화 */
+    font-feature-settings:
+      'cv02', /* Single-storey a */
+      'cv03', /* Single-storey g */
+      'cv04', /* Open Four */
+      'cv11'; /* Single-storey i */
+
+    /* 폰트 렌더링 최적화 */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+
+    /* 다크 모드 트랜지션 */
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* 스크롤바 스타일링 (라이트 모드) */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: rgb(var(--color-bg-subtle));
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--color-border-strong));
+    border-radius: 9999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(var(--color-text-quaternary));
+  }
+
+  /* 다크 모드 스크롤바 */
+  .dark ::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--color-border-DEFAULT));
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background-color: rgb(var(--color-border-strong));
   }
 }
 
@@ -28,5 +164,46 @@
 
   .input-field {
     @apply w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200;
+  }
+
+  /* 그리드 패턴 배경 */
+  .bg-grid-pattern {
+    background-image:
+      linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .bg-grid-pattern-lg {
+    background-image:
+      linear-gradient(to right, rgba(0, 0, 0, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+
+  .bg-dot-pattern {
+    background-image: radial-gradient(
+      circle,
+      rgba(0, 0, 0, 0.05) 1px,
+      transparent 1px
+    );
+    background-size: 20px 20px;
+  }
+
+  /* 그라데이션 텍스트 */
+  .gradient-text {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-secondary-500;
+  }
+
+  /* 글래스모피즘 */
+  .glass {
+    @apply bg-white/80 backdrop-blur-xl border border-white/20;
+  }
+}
+
+@layer utilities {
+  /* 그라데이션 애니메이션 배경 크기 */
+  .bg-size-200 {
+    background-size: 200% 200%;
   }
 }

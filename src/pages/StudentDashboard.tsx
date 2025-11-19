@@ -1,6 +1,8 @@
 import { useAuth } from '../contexts/AuthContext';
 import { Card } from '../components/common/Card';
 import { Button } from '../components/common/Button';
+import { PageTransition } from '../components/common/PageTransition';
+import { useCountUp } from '../hooks/useCountUp';
 import {
   Calendar,
   BookOpen,
@@ -110,56 +112,64 @@ export const StudentDashboard = () => {
 
   const upcomingClass = classes.find(c => c.status === 'scheduled');
 
+  // 숫자 카운터 애니메이션
+  const animatedTotalClasses = useCountUp(stats.totalClasses, 1500);
+  const animatedCompletedClasses = useCountUp(stats.completedClasses, 1500);
+  const animatedStudyHours = useCountUp(stats.studyHours, 1500);
+  const averagePercentile = Math.round(mockGrades.reduce((sum, g) => sum + g.percentile, 0) / mockGrades.length || 0);
+  const animatedPercentile = useCountUp(averagePercentile, 1500);
+
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4">
+    <PageTransition>
+      <div className="min-h-screen bg-bg-base py-8 px-4">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-text-primary">
             안녕하세요, {user?.name}님! 👋
           </h1>
-          <p className="text-gray-600 mt-2">오늘도 목표를 향해 한 걸음 더 나아가요</p>
+          <p className="text-text-secondary mt-2">오늘도 목표를 향해 한 걸음 더 나아가요</p>
         </div>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <Card className="flex items-center gap-4">
-            <div className="p-3 bg-primary-100 rounded-lg">
-              <BookOpen className="text-primary-500" size={24} />
+            <div className="p-3 bg-primary-light dark:bg-primary-subtle rounded-lg">
+              <BookOpen className="text-primary" size={24} />
             </div>
             <div>
-              <div className="text-2xl font-bold">{stats.totalClasses}</div>
-              <div className="text-sm text-gray-600">전체 수업</div>
+              <div className="text-2xl font-bold text-text-primary">{animatedTotalClasses}</div>
+              <div className="text-sm text-text-secondary">전체 수업</div>
             </div>
           </Card>
 
           <Card className="flex items-center gap-4">
-            <div className="p-3 bg-secondary-100 rounded-lg">
-              <TrendingUp className="text-secondary-500" size={24} />
+            <div className="p-3 bg-pink-100 dark:bg-pink-900/30 rounded-lg">
+              <TrendingUp className="text-secondary" size={24} />
             </div>
             <div>
-              <div className="text-2xl font-bold">{mockGrades.reduce((sum, g) => sum + g.percentile, 0) / mockGrades.length || 0}</div>
-              <div className="text-sm text-gray-600">평균 백분위</div>
+              <div className="text-2xl font-bold text-text-primary">{animatedPercentile}</div>
+              <div className="text-sm text-text-secondary">평균 백분위</div>
             </div>
           </Card>
 
           <Card className="flex items-center gap-4">
-            <div className="p-3 bg-accent-100 rounded-lg">
-              <Target className="text-accent-500" size={24} />
+            <div className="p-3 bg-amber-100 dark:bg-amber-900/30 rounded-lg">
+              <Target className="text-accent" size={24} />
             </div>
             <div>
-              <div className="text-2xl font-bold">{stats.completedClasses}</div>
-              <div className="text-sm text-gray-600">완료한 수업</div>
+              <div className="text-2xl font-bold text-text-primary">{animatedCompletedClasses}</div>
+              <div className="text-sm text-text-secondary">완료한 수업</div>
             </div>
           </Card>
 
           <Card className="flex items-center gap-4">
-            <div className="p-3 bg-purple-100 rounded-lg">
-              <Clock className="text-purple-500" size={24} />
+            <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
+              <Clock className="text-purple-500 dark:text-purple-400" size={24} />
             </div>
             <div>
-              <div className="text-2xl font-bold">{stats.studyHours}h</div>
-              <div className="text-sm text-gray-600">학습 시간</div>
+              <div className="text-2xl font-bold text-text-primary">{animatedStudyHours}h</div>
+              <div className="text-sm text-text-secondary">학습 시간</div>
             </div>
           </Card>
         </div>
@@ -172,16 +182,16 @@ export const StudentDashboard = () => {
               <Card>
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h2 className="text-xl font-bold mb-1">다음 수업</h2>
-                    <p className="text-sm text-gray-600">곧 시작할 수업이 있어요</p>
+                    <h2 className="text-xl font-bold text-text-primary mb-1">다음 수업</h2>
+                    <p className="text-sm text-text-secondary">곧 시작할 수업이 있어요</p>
                   </div>
-                  <Calendar className="text-primary-500" size={24} />
+                  <Calendar className="text-primary" size={24} />
                 </div>
-                <div className="bg-gradient-to-br from-primary-50 to-secondary-50 rounded-lg p-6">
+                <div className="bg-gradient-to-br from-primary-50 to-pink-50 dark:from-primary-900/30 dark:to-pink-900/30 rounded-lg p-6 border border-primary-light dark:border-primary-subtle">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="text-xl font-bold mb-2">{upcomingClass.subject}</h3>
-                      <p className="text-gray-700 mb-4">
+                      <h3 className="text-xl font-bold text-text-primary mb-2">{upcomingClass.subject}</h3>
+                      <p className="text-text-primary mb-4">
                         {new Date(upcomingClass.scheduledAt).toLocaleString('ko-KR', {
                           month: 'long',
                           day: 'numeric',
@@ -199,8 +209,8 @@ export const StudentDashboard = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-sm text-gray-600">수업 시간</div>
-                      <div className="text-2xl font-bold text-primary-500">
+                      <div className="text-sm text-text-secondary">수업 시간</div>
+                      <div className="text-2xl font-bold text-primary">
                         {upcomingClass.duration}분
                       </div>
                     </div>
@@ -211,18 +221,18 @@ export const StudentDashboard = () => {
 
             {/* Performance Chart */}
             <Card>
-              <h2 className="text-xl font-bold mb-4">성적 추이</h2>
+              <h2 className="text-xl font-bold text-text-primary mb-4">성적 추이</h2>
               <div className="h-64">
                 <Line data={chartData} options={chartOptions} />
               </div>
               <div className="mt-6 grid grid-cols-5 gap-4">
                 {mockGrades.map((grade) => (
                   <div key={grade.subject} className="text-center">
-                    <div className="text-2xl font-bold text-primary-500">
+                    <div className="text-2xl font-bold text-primary">
                       {grade.percentile}
                     </div>
-                    <div className="text-sm text-gray-600">{grade.subject}</div>
-                    <div className="text-xs text-gray-500">{grade.score}점</div>
+                    <div className="text-sm text-text-secondary">{grade.subject}</div>
+                    <div className="text-xs text-text-tertiary">{grade.score}점</div>
                   </div>
                 ))}
               </div>
@@ -231,8 +241,8 @@ export const StudentDashboard = () => {
             {/* Study Goals */}
             <Card>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold">이번 주 학습 목표</h2>
-                <Award className="text-accent-500" size={24} />
+                <h2 className="text-xl font-bold text-text-primary">이번 주 학습 목표</h2>
+                <Award className="text-accent" size={24} />
               </div>
               <div className="space-y-4">
                 {[
@@ -242,12 +252,12 @@ export const StudentDashboard = () => {
                 ].map((goal, index) => (
                   <div key={index}>
                     <div className="flex justify-between text-sm mb-2">
-                      <span className="font-medium">{goal.subject}: {goal.target}</span>
-                      <span className="text-gray-600">{goal.progress}%</span>
+                      <span className="font-medium text-text-primary">{goal.subject}: {goal.target}</span>
+                      <span className="text-text-secondary">{goal.progress}%</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-border-subtle dark:bg-border rounded-full h-2">
                       <div
-                        className="bg-secondary-500 h-2 rounded-full transition-all duration-300"
+                        className="bg-secondary h-2 rounded-full transition-all duration-300"
                         style={{ width: `${goal.progress}%` }}
                       />
                     </div>
@@ -261,20 +271,20 @@ export const StudentDashboard = () => {
           <div className="space-y-6">
             {/* AI Recommendations */}
             <Card>
-              <h3 className="font-bold mb-4 flex items-center gap-2">
-                <Target className="text-primary-500" size={20} />
+              <h3 className="font-bold text-text-primary mb-4 flex items-center gap-2">
+                <Target className="text-primary" size={20} />
                 AI 추천
               </h3>
               <div className="space-y-3">
-                <div className="p-3 bg-blue-50 rounded-lg">
-                  <div className="text-sm font-medium mb-1">수학 집중 학습</div>
-                  <div className="text-xs text-gray-600">
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <div className="text-sm font-medium text-text-primary mb-1">수학 집중 학습</div>
+                  <div className="text-xs text-text-secondary">
                     최근 성적이 하락했어요. 미적분 보충이 필요합니다.
                   </div>
                 </div>
-                <div className="p-3 bg-green-50 rounded-lg">
-                  <div className="text-sm font-medium mb-1">영어 단어 암기</div>
-                  <div className="text-xs text-gray-600">
+                <div className="p-3 bg-green-50 dark:bg-green-900/30 rounded-lg border border-green-200 dark:border-green-800">
+                  <div className="text-sm font-medium text-text-primary mb-1">영어 단어 암기</div>
+                  <div className="text-xs text-text-secondary">
                     매일 30분씩 꾸준히 학습하면 다음 모의고사 90점 이상 가능!
                   </div>
                 </div>
@@ -288,8 +298,8 @@ export const StudentDashboard = () => {
 
             {/* Notifications */}
             <Card>
-              <h3 className="font-bold mb-4 flex items-center gap-2">
-                <Bell className="text-accent-500" size={20} />
+              <h3 className="font-bold text-text-primary mb-4 flex items-center gap-2">
+                <Bell className="text-accent" size={20} />
                 알림
               </h3>
               <div className="space-y-3">
@@ -299,8 +309,8 @@ export const StudentDashboard = () => {
                   { title: '다음 수업까지 3시간', time: '2시간 전' },
                 ].map((notif, index) => (
                   <div key={index} className="flex justify-between items-start">
-                    <div className="text-sm">{notif.title}</div>
-                    <div className="text-xs text-gray-500">{notif.time}</div>
+                    <div className="text-sm text-text-primary">{notif.title}</div>
+                    <div className="text-xs text-text-tertiary">{notif.time}</div>
                   </div>
                 ))}
               </div>
@@ -308,7 +318,7 @@ export const StudentDashboard = () => {
 
             {/* Community Preview */}
             <Card>
-              <h3 className="font-bold mb-4">커뮤니티 인기글</h3>
+              <h3 className="font-bold text-text-primary mb-4">커뮤니티 인기글</h3>
               <div className="space-y-3">
                 {[
                   '서울대 합격 수기',
@@ -317,7 +327,7 @@ export const StudentDashboard = () => {
                 ].map((title, index) => (
                   <div
                     key={index}
-                    className="text-sm text-gray-700 hover:text-primary-500 cursor-pointer"
+                    className="text-sm text-text-primary hover:text-primary cursor-pointer transition-colors"
                   >
                     • {title}
                   </div>
@@ -332,6 +342,7 @@ export const StudentDashboard = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </PageTransition>
   );
 };

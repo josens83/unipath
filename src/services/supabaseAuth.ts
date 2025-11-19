@@ -1,24 +1,12 @@
-import { supabase, type Profile } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 import type { User } from '../types';
 import type { RegisterData } from '../contexts/AuthContext';
+import { mapProfileToUser, mapUserToProfileUpdate } from '../types/mappers';
 
 /**
  * Supabase Auth Service
  * Supabase Authentication을 사용한 인증 서비스
  */
-
-// Supabase Profile을 앱의 User 타입으로 변환
-const profileToUser = (profile: Profile): User => {
-  return {
-    id: profile.id,
-    name: profile.full_name,
-    email: profile.email,
-    role: profile.role,
-    avatar: profile.avatar_url,
-    phone: profile.phone,
-    createdAt: profile.created_at,
-  };
-};
 
 // 현재 로그인된 사용자 가져오기
 export const getCurrentUser = async (): Promise<User | null> => {
@@ -45,7 +33,7 @@ export const getCurrentUser = async (): Promise<User | null> => {
       return null;
     }
 
-    return profileToUser(profile as Profile);
+    return mapProfileToUser(profile);
   } catch (error) {
     console.error('getCurrentUser 오류:', error);
     return null;
@@ -78,7 +66,7 @@ export const login = async (email: string, password: string): Promise<User> => {
     throw new Error('프로필 정보를 가져올 수 없습니다.');
   }
 
-  return profileToUser(profile as Profile);
+  return mapProfileToUser(profile);
 };
 
 // 회원가입
@@ -135,7 +123,7 @@ export const register = async (data: RegisterData): Promise<User> => {
     // 관리자 승인 후 tutors 테이블에 추가
   }
 
-  return profileToUser(profile as Profile);
+  return mapProfileToUser(profile);
 };
 
 // 로그아웃
@@ -151,14 +139,13 @@ export const updateProfile = async (
   userId: string,
   updates: Partial<User>
 ): Promise<User> => {
+  // App 타입을 DB 타입으로 변환
+  const dbUpdates = mapUserToProfileUpdate(updates);
+
   // profiles 테이블 업데이트
   const { data: profile, error } = await supabase
     .from('profiles')
-    .update({
-      full_name: updates.name,
-      phone: updates.phone,
-      avatar_url: updates.avatar,
-    })
+    .update(dbUpdates)
     .eq('id', userId)
     .select()
     .single();
@@ -167,7 +154,7 @@ export const updateProfile = async (
     throw new Error('프로필 업데이트에 실패했습니다.');
   }
 
-  return profileToUser(profile as Profile);
+  return mapProfileToUser(profile);
 };
 
 // Auth 상태 변경 리스너 설정
